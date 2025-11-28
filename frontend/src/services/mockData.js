@@ -1,364 +1,452 @@
 // Mock Data Service for Frontend Development
 // This provides sample data when the backend is not available
 
+export const mockUsers = [
+  {
+    id: "1",
+    firstName: "Galal",
+    lastName: "Al-Muslimani",
+    email: "admin@autologic.com",
+    phone: "1234567890",
+    password: "admin123456",
+    role: "admin",
+    isActive: true,
+  },
+  {
+    id: "2",
+    firstName: "John",
+    lastName: "Technician",
+    email: "tech@autologic.com",
+    phone: "0987654321",
+    password: "user123456",
+    role: "technician",
+    isActive: true,
+  },
+  {
+    id: "3",
+    firstName: "Sarah",
+    lastName: "Customer",
+    email: "sarah@example.com",
+    phone: "1122334455",
+    password: "user123456",
+    role: "user",
+    isActive: true,
+  },
+  {
+    id: "4",
+    firstName: "Mike",
+    lastName: "Driver",
+    email: "mike@example.com",
+    phone: "5544332211",
+    password: "user123456",
+    role: "user",
+    isActive: true,
+  },
+];
+
 export const mockServices = [
   {
-    _id: '1',
-    name: 'Engine Repair',
-    nameAr: 'إصلاح المحرك',
-    description: 'Professional engine repair and maintenance services using the latest technology and equipment.',
-    descriptionAr: 'خدمات إصلاح وصيانة المحرك المهنية باستخدام أحدث التقنيات والمعدات.',
-    category: 'Engine',
-    categoryAr: 'المحرك',
-    price: 200,
-    priceAr: 'من 200 ريال',
-    duration: '2-4 hours',
-    durationAr: '2-4 ساعات',
+    _id: "1",
+    name: "Full Engine Diagnostics",
+    description:
+      "Complete computer diagnostics check to identify engine issues, sensor failures, and performance problems.",
+    category: "Diagnostic",
+    price: 80,
+    duration: 60,
     isActive: true,
-    isFeatured: true,
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500',
-        publicId: 'engine-repair-1',
-        alt: 'Engine Repair Service',
-        altAr: 'خدمة إصلاح المحرك'
-      }
-    ]
+        url: "https://res.cloudinary.com/dp0yyiuj0/image/upload/v1763805884/autologic/services/vzai3ijdtrjyo8twjscs.jpg",
+        publicId: "seed-1",
+        alt: "Diagnostics",
+      },
+    ],
   },
   {
-    _id: '2',
-    name: 'Transmission Service',
-    nameAr: 'خدمة ناقل الحركة',
-    description: 'Complete transmission service including repair, maintenance, and fluid changes.',
-    descriptionAr: 'خدمة ناقل الحركة الكاملة تشمل الإصلاح والصيانة وتغيير السوائل.',
-    category: 'Transmission',
-    categoryAr: 'ناقل الحركة',
-    price: 300,
-    priceAr: 'من 300 ريال',
-    duration: '3-5 hours',
-    durationAr: '3-5 ساعات',
+    _id: "2",
+    name: "Synthetic Oil Change",
+    description:
+      "Premium synthetic oil change including oil filter replacement and fluid top-up.",
+    category: "Oil",
+    price: 60,
+    duration: 45,
     isActive: true,
-    isFeatured: true,
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500',
-        publicId: 'transmission-1',
-        alt: 'Transmission Service',
-        altAr: 'خدمة ناقل الحركة'
-      }
-    ]
+        url: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800",
+        publicId: "seed-2",
+        alt: "Oil Change",
+      },
+    ],
   },
   {
-    _id: '3',
-    name: 'Brake System',
-    nameAr: 'نظام المكابح',
-    description: 'Complete brake system inspection, repair, and maintenance for your safety.',
-    descriptionAr: 'فحص وإصلاح وصيانة نظام المكابح الكامل لضمان سلامتك.',
-    category: 'Brakes',
-    categoryAr: 'المكابح',
+    _id: "3",
+    name: "Brake Pad Replacement",
+    description:
+      "Front or rear brake pad replacement with ceramic pads. Includes rotor inspection.",
+    category: "Brakes",
     price: 150,
-    priceAr: 'من 150 ريال',
-    duration: '1-2 hours',
-    durationAr: '1-2 ساعة',
+    duration: 90,
     isActive: true,
-    isFeatured: false,
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500',
-        publicId: 'brakes-1',
-        alt: 'Brake System Service',
-        altAr: 'خدمة نظام المكابح'
-      }
-    ]
+        url: "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?w=800",
+        publicId: "seed-3",
+        alt: "Brakes",
+      },
+    ],
   },
   {
-    _id: '4',
-    name: 'Tire Service',
-    nameAr: 'خدمة الإطارات',
-    description: 'Tire replacement, balancing, alignment, and pressure check services.',
-    descriptionAr: 'خدمات تغيير وموازنة ومحاذاة الإطارات وفحص الضغط.',
-    category: 'Tires',
-    categoryAr: 'الإطارات',
+    _id: "4",
+    name: "Tire Rotation & Balance",
+    description:
+      "Extend your tire life with professional rotation and computer balancing.",
+    category: "Tires",
+    price: 40,
+    duration: 45,
+    isActive: true,
+    images: [
+      {
+        url: "https://res.cloudinary.com/dp0yyiuj0/image/upload/v1763805828/autologic/services/fhvpsunkxfylqiivri7s.jpg",
+        publicId: "seed-4",
+        alt: "Tires",
+      },
+    ],
+  },
+  {
+    _id: "5",
+    name: "Battery Replacement",
+    description:
+      "Installation of a new premium battery with a 3-year warranty. Includes charging system check.",
+    category: "Electrical",
+    price: 120,
+    duration: 30,
+    isActive: true,
+    images: [
+      {
+        url: "https://res.cloudinary.com/dp0yyiuj0/image/upload/v1763805558/autologic/services/y6vpbedjpszdixovrmyc.jpg",
+        publicId: "seed-5",
+        alt: "Battery",
+      },
+    ],
+  },
+  {
+    _id: "6",
+    name: "AC Recharge Service",
+    description:
+      "Refrigerant evacuation and recharge to keep your air conditioning ice cold.",
+    category: "AC",
     price: 100,
-    priceAr: 'من 100 ريال',
-    duration: '1 hour',
-    durationAr: 'ساعة واحدة',
+    duration: 60,
     isActive: true,
-    isFeatured: false,
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500',
-        publicId: 'tires-1',
-        alt: 'Tire Service',
-        altAr: 'خدمة الإطارات'
-      }
-    ]
+        url: "https://images.unsplash.com/photo-1504222490345-c075b6008014?w=800",
+        publicId: "seed-6",
+        alt: "AC",
+      },
+    ],
+  },
+];
+
+export const mockBookings = [
+  {
+    customer: mockUsers[2].id,
+    service: mockServices[0].id,
+    appointmentDate: new Date(Date.now() + 86400000), // Tomorrow
+    appointmentTime: "10:00",
+    status: "pending",
+    estimatedCost: mockServices[0].price,
+    car: { make: "Toyota", model: "Camry", year: 2019 },
+    issue: { description: "Check engine light is on" },
   },
   {
-    _id: '5',
-    name: 'Battery Service',
-    nameAr: 'خدمة البطارية',
-    description: 'Battery testing, replacement, and charging system maintenance.',
-    descriptionAr: 'فحص وتغيير البطارية وصيانة نظام الشحن.',
-    category: 'Electrical',
-    categoryAr: 'الكهرباء',
-    price: 250,
-    priceAr: 'من 250 ريال',
-    duration: '30 minutes',
-    durationAr: '30 دقيقة',
-    isActive: true,
-    isFeatured: false,
-    images: [
-      {
-        url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500',
-        publicId: 'battery-1',
-        alt: 'Battery Service',
-        altAr: 'خدمة البطارية'
-      }
-    ]
+    customer: mockUsers[2].id,
+    service: mockServices[1]._id,
+    appointmentDate: new Date(Date.now() + 172800000), // Day after tomorrow
+    appointmentTime: "14:00",
+    status: "confirmed",
+    technician: mockUsers[1].id,
+    estimatedCost: mockServices[1].price,
+    car: { make: "Honda", model: "Civic", year: 2021 },
+    issue: { description: "Regular maintenance" },
   },
-  {
-    _id: '6',
-    name: 'AC Service',
-    nameAr: 'خدمة التكييف',
-    description: 'Air conditioning system maintenance, repair, and gas refilling.',
-    descriptionAr: 'صيانة وإصلاح نظام تكييف الهواء وتعبئة الغاز.',
-    category: 'AC',
-    categoryAr: 'التكييف',
-    price: 180,
-    priceAr: 'من 180 ريال',
-    duration: '2-3 hours',
-    durationAr: '2-3 ساعات',
-    isActive: true,
-    isFeatured: false,
-    images: [
-      {
-        url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500',
-        publicId: 'ac-1',
-        alt: 'AC Service',
-        altAr: 'خدمة التكييف'
-      }
-    ]
-  }
 ];
 
 export const mockBlogs = [
   {
-    _id: '1',
-    title: '10 Essential Car Maintenance Tips',
-    titleAr: '10 نصائح أساسية لصيانة السيارة',
-    content: 'Regular maintenance is crucial for keeping your car running smoothly and safely. Here are 10 essential tips every car owner should know...',
-    contentAr: 'الصيانة الدورية ضرورية للحفاظ على عمل السيارة بسلاسة وأمان. إليك 10 نصائح أساسية يجب أن يعرفها كل مالك سيارة...',
-    excerpt: 'Essential maintenance tips for car owners',
-    excerptAr: 'نصائح صيانة أساسية لأصحاب السيارات',
-    category: 'Maintenance',
-    categoryAr: 'الصيانة',
-    tags: ['maintenance', 'tips', 'car care'],
-    tagsAr: ['صيانة', 'نصائح', 'عناية بالسيارة'],
+    _id: "1",
+    title: "5 Signs Your Brakes Need Replacing",
+    slug: "5-signs-brakes-need-replacing",
+    excerpt:
+      "Squeaking noises? Soft pedal? Learn the warning signs of worn brake pads.",
+    content:
+      "Brakes are the most critical safety feature of your car. Here are the top 5 signs they need attention: 1. Squealing or grinding noises. 2. Vibration when braking. 3. Taking longer to stop. 4. The brake light is on. 5. The car pulls to one side.",
+    category: "Maintenance",
+    tags: ["brakes", "safety", "maintenance"],
+    status: "published",
     author: {
-      name: 'Admin User',
-      nameAr: 'المدير'
+      firstName: "Galal",
+      lastName: "Al-Muslimani",
     },
-    status: 'published',
     isPublic: true,
     isFeatured: true,
-    images: [
-      {
-        url: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500',
-        publicId: 'maintenance-tips-1',
-        alt: 'Car Maintenance',
-        altAr: 'صيانة السيارة',
-        position: 0
-      }
-    ],
-    createdAt: '2024-01-15T10:00:00Z'
+    featuredImage: {
+      url: "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?w=800",
+      publicId: "seed-blog-1",
+      alt: "Brakes",
+    },
+    createdAt: "2024-01-15T10:00:00Z",
   },
   {
-    _id: '2',
-    title: 'How to Choose the Right Car Service Center',
-    titleAr: 'كيفية اختيار مركز خدمة السيارات المناسب',
-    content: 'Choosing the right service center is important for your car\'s health and your peace of mind. Here\'s what to look for...',
-    contentAr: 'اختيار مركز الخدمة المناسب مهم لصحة سيارتك وراحة بالك. إليك ما يجب البحث عنه...',
-    excerpt: 'Guide to choosing a reliable service center',
-    excerptAr: 'دليل لاختيار مركز خدمة موثوق',
-    category: 'Guide',
-    categoryAr: 'دليل',
-    tags: ['service center', 'guide', 'choosing'],
-    tagsAr: ['مركز خدمة', 'دليل', 'اختيار'],
-    author: {
-      name: 'Admin User',
-      nameAr: 'المدير'
-    },
-    status: 'published',
+    _id: "2",
+    title: "How Often Should You Change Your Oil?",
+    slug: "how-often-oil-change",
+    excerpt:
+      "Is the 3,000-mile rule still valid? We bust common oil change myths.",
+    content:
+      "Modern engines and synthetic oils have changed the rules. While the old rule was every 3,000 miles, most modern cars can go 5,000 to 7,500 miles between changes. Always check your owner's manual for the definitive answer.",
+    category: "Tips",
+    tags: ["oil", "engine", "tips"],
+    status: "published",
     isPublic: true,
-    isFeatured: false,
-    images: [
-      {
-        url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500',
-        publicId: 'service-center-1',
-        alt: 'Service Center',
-        altAr: 'مركز خدمة',
-        position: 0
-      }
-    ],
-    createdAt: '2024-01-10T14:30:00Z'
-  }
-];
-
-export const mockProjects = [
-  {
-    _id: '1',
-    title: 'BMW Engine Overhaul',
-    titleAr: 'إصلاح شامل لمحرك BMW',
-    description: 'Complete engine overhaul for BMW 320i including piston replacement and timing belt change.',
-    descriptionAr: 'إصلاح شامل لمحرك BMW 320i يشمل تغيير المكابس وحزام التوقيت.',
-    service: {
-      _id: '1',
-      name: 'Engine Repair',
-      nameAr: 'إصلاح المحرك'
+    author: {
+      firstName: "Galal",
+      lastName: "Al-Muslimani",
     },
-    images: [
-      {
-        url: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500',
-        publicId: 'bmw-engine-1',
-        alt: 'BMW Engine Overhaul',
-        altAr: 'إصلاح شامل لمحرك BMW',
-        position: 0
-      },
-      {
-        url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500',
-        publicId: 'bmw-engine-2',
-        alt: 'BMW Engine Parts',
-        altAr: 'قطع محرك BMW',
-        position: 1
-      }
-    ],
-    isActive: true,
     isFeatured: true,
-    createdAt: '2024-01-20T09:00:00Z'
+    featuredImage: {
+      url: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800",
+      publicId: "seed-blog-2",
+      alt: "Oil",
+    },
+    createdAt: "2024-01-10T14:30:00Z",
   },
   {
-    _id: '2',
-    title: 'Mercedes Transmission Repair',
-    titleAr: 'إصلاح ناقل حركة مرسيدس',
-    description: 'Professional transmission repair for Mercedes C-Class with warranty.',
-    descriptionAr: 'إصلاح ناقل حركة مرسيدس C-Class مهني مع ضمان.',
-    service: {
-      _id: '2',
-      name: 'Transmission Service',
-      nameAr: 'خدمة ناقل الحركة'
+    _id: "3",
+    title: "Winter Car Care Guide",
+    slug: "winter-car-care-guide",
+    excerpt:
+      "Prepare your vehicle for the cold months with this essential checklist.",
+    content:
+      "Winter can be tough on cars. Make sure to: 1. Check your battery. 2. Inspect tires (consider winter tires). 3. Check antifreeze levels. 4. Replace wiper blades. 5. Keep your gas tank at least half full.",
+    category: "Guides",
+    tags: ["winter", "safety", "guide"],
+    status: "published",
+    isPublic: true,
+    author: {
+      firstName: "Galal",
+      lastName: "Al-Muslimani",
     },
-    images: [
-      {
-        url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500',
-        publicId: 'mercedes-transmission-1',
-        alt: 'Mercedes Transmission',
-        altAr: 'ناقل حركة مرسيدس',
-        position: 0
-      }
-    ],
-    isActive: true,
-    isFeatured: true,
-    createdAt: '2024-01-18T11:30:00Z'
-  }
+    isFeatured: false,
+    featuredImage: {
+      url: "https://images.unsplash.com/photo-1489824904134-891ab64532f1?w=800",
+      publicId: "seed-blog-3",
+      alt: "Winter",
+    },
+    createdAt: "2024-01-18T14:30:00Z",
+  },
 ];
 
-export const mockReviews = [
+export const mockContacts = [
   {
-    _id: '1',
-    rating: 5,
-    comment: 'Excellent service! The team was professional and completed the work on time.',
-    commentAr: 'خدمة ممتازة! الفريق كان مهنياً وأنجز العمل في الوقت المحدد.',
-    user: {
-      name: 'Ahmed Al-Rashid',
-      nameAr: 'أحمد الراشد'
-    },
-    service: {
-      _id: '1',
-      name: 'Engine Repair',
-      nameAr: 'إصلاح المحرك'
-    },
-    isActive: true,
-    isFeatured: true,
-    createdAt: '2024-01-22T16:00:00Z'
+    id: "1",
+    name: "John Doe",
+    email: "johndoe@test.com",
+    phone: "1234567890",
+    message: "Hi, do you have Michelin tires for a 2020 Honda Civic?",
+    type: "general",
+    status: "new",
+    priority: "medium",
   },
   {
-    _id: '2',
-    rating: 4,
-    comment: 'Good service, reasonable prices. Would recommend to others.',
-    commentAr: 'خدمة جيدة، أسعار معقولة. أنصح الآخرين بها.',
-    user: {
-      name: 'Sarah Johnson',
-      nameAr: 'سارة جونسون'
-    },
-    service: {
-      _id: '2',
-      name: 'Transmission Service',
-      nameAr: 'خدمة ناقل الحركة'
-    },
-    isActive: true,
-    isFeatured: false,
-    createdAt: '2024-01-21T14:30:00Z'
-  }
+    id: "2",
+    name: "Jane Smith",
+    email: "jane@test.com",
+    phone: "0987654321",
+    message: "I need to cancel my appointment for tomorrow please.",
+    type: "support",
+    status: "resolved",
+    priority: "high",
+  },
 ];
 
 // Mock API functions that return promises
 export const mockAPI = {
+  auth: {
+    login: (email, password) => {
+      const user = mockUsers.find(
+        (u) => u.email === email && u.password === password
+      );
+      if (user) {
+        return Promise.resolve({
+          data: {
+            token: "mock-jwt-token",
+            data: { user },
+          },
+        });
+      } else {
+        return Promise.reject({
+          response: {
+            data: { message: "Invalid email or password" },
+          },
+        });
+      }
+    },
+    register: (userData) => {
+      const existingUser = mockUsers.find((u) => u.email === userData.email);
+      if (existingUser) {
+        return Promise.reject({
+          response: {
+            data: { message: "Email already in use" },
+          },
+        });
+      }
+      const newUser = {
+        id: (mockUsers.length + 1).toString(),
+        ...userData,
+        role: "user",
+        isActive: true,
+      };
+      mockUsers.push(newUser);
+      return Promise.resolve({
+        data: {
+          token: "mock-jwt-token",
+          data: { user: newUser },
+        },
+      });
+    },
+  },
+  users: {
+    getAll: () =>
+      Promise.resolve({
+        data: {
+          data: {
+            users: mockUsers,
+          },
+        },
+      }),
+    getById: (id) =>
+      Promise.resolve({
+        data: {
+          data: {
+            user: mockUsers.find((u) => u.id === id),
+          },
+        },
+      }),
+  },
   services: {
-    getAll: () => Promise.resolve({
-      data: {
+    getAll: () =>
+      Promise.resolve({
         data: {
-          services: mockServices
-        }
-      }
-    }),
-    getById: (id) => Promise.resolve({
-      data: {
+          data: {
+            services: mockServices,
+          },
+        },
+      }),
+    getById: (id) =>
+      Promise.resolve({
         data: {
-          service: mockServices.find(s => s._id === id)
-        }
-      }
-    })
+          data: {
+            service: mockServices.find((s) => s._id === id),
+          },
+        },
+      }),
+  },
+  bookings: {
+    getAll: () =>
+      Promise.resolve({
+        data: {
+          data: {
+            bookings: mockBookings,
+          },
+        },
+      }),
+    getById: (id) =>
+      Promise.resolve({
+        data: {
+          data: {
+            booking: mockBookings.find((s) => s._id === id),
+          },
+        },
+      }),
+    getByUserId: (userId) =>
+      Promise.resolve({
+        data: {
+          data: {
+            bookings: mockBookings.filter((b) => b.customer === userId),
+          },
+        },
+      }),
+    getAvailableSlots: () => {
+      // Return mock time slots for the given date
+      const slots = [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00",
+      ];
+      return Promise.resolve({
+        data: {
+          data: {
+            slots,
+          },
+        },
+      });
+    },
   },
   blogs: {
-    getAll: () => Promise.resolve({
-      data: {
+    getAll: () =>
+      Promise.resolve({
         data: {
-          blogs: mockBlogs
-        }
-      }
-    }),
-    getById: (id) => Promise.resolve({
-      data: {
+          data: {
+            blogs: mockBlogs,
+          },
+        },
+      }),
+    getById: (id) =>
+      Promise.resolve({
         data: {
-          blog: mockBlogs.find(b => b._id === id)
-        }
-      }
-    })
+          data: {
+            blog: mockBlogs.find((b) => b._id === id),
+          },
+        },
+      }),
+    getByCategory: (category) =>
+      Promise.resolve({
+        data: {
+          data: {
+            blogs: mockBlogs.filter((b) => b.category === category),
+          },
+        },
+      }),
   },
-  projects: {
-    getAll: () => Promise.resolve({
-      data: {
+  contacts: {
+    getAll: () =>
+      Promise.resolve({
         data: {
-          projects: mockProjects
-        }
-      }
-    }),
-    getById: (id) => Promise.resolve({
-      data: {
+          data: {
+            contacts: mockContacts,
+          },
+        },
+      }),
+    getById: (id) =>
+      Promise.resolve({
         data: {
-          project: mockProjects.find(p => p._id === id)
-        }
-      }
-    })
+          data: {
+            contact: mockContacts.find((b) => b._id === id),
+          },
+        },
+      }),
   },
-  reviews: {
-    getAll: () => Promise.resolve({
-      data: {
-        data: {
-          reviews: mockReviews
-        }
-      }
-    })
-  }
 };
