@@ -163,7 +163,9 @@
     "changePassBtn": "Change Password",
     "passMismatch": "Passwords do not match",
     "successUpdate": "Profile updated successfully",
-    "successPass": "Password changed successfully"
+    "failUpdate": "Failed to update profile",
+    "successPass": "Password changed successfully",
+    "failPass": "Failed to change password"
   },
   "footer": {
     "description": "Your trusted partner for reliable car maintenance and roadside assistance. We use original parts and expert technicians to ensure your safety and keep your vehicle running smoothly.",
@@ -275,7 +277,6 @@
     },
     "contact": {
       "title": "Message Details",
-      "subject": "Subject",
       "type": "Type",
       "message": "Message",
       "updateStatus": "Update Status",

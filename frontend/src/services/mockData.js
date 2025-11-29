@@ -3,7 +3,7 @@
 
 export const mockUsers = [
   {
-    id: "1",
+    _id: "1",
     firstName: "Galal",
     lastName: "Al-Muslimani",
     email: "admin@autologic.com",
@@ -11,9 +11,10 @@ export const mockUsers = [
     password: "admin123456",
     role: "admin",
     isActive: true,
+    createdAt: new Date(),
   },
   {
-    id: "2",
+    _id: "2",
     firstName: "John",
     lastName: "Technician",
     email: "tech@autologic.com",
@@ -21,9 +22,10 @@ export const mockUsers = [
     password: "user123456",
     role: "technician",
     isActive: true,
+    createdAt: new Date(),
   },
   {
-    id: "3",
+    _id: "3",
     firstName: "Sarah",
     lastName: "Customer",
     email: "sarah@example.com",
@@ -31,9 +33,10 @@ export const mockUsers = [
     password: "user123456",
     role: "user",
     isActive: true,
+    createdAt: new Date(),
   },
   {
-    id: "4",
+    _id: "4",
     firstName: "Mike",
     lastName: "Driver",
     email: "mike@example.com",
@@ -41,6 +44,7 @@ export const mockUsers = [
     password: "user123456",
     role: "user",
     isActive: true,
+    createdAt: new Date(),
   },
 ];
 
@@ -151,8 +155,18 @@ export const mockServices = [
 
 export const mockBookings = [
   {
-    customer: mockUsers[2].id,
-    service: mockServices[0].id,
+    _id: "1",
+    customer: {
+      _id: mockUsers[2]._id,
+      firstName: mockUsers[2].firstName,
+      lastName: mockUsers[2].lastName,
+      email: mockUsers[2].email,
+    },
+    service: {
+      _id: mockServices[0]._id,
+      name: mockServices[0].name,
+      price: mockServices[0].price,
+    },
     appointmentDate: new Date(Date.now() + 86400000), // Tomorrow
     appointmentTime: "10:00",
     status: "pending",
@@ -161,12 +175,27 @@ export const mockBookings = [
     issue: { description: "Check engine light is on" },
   },
   {
-    customer: mockUsers[2].id,
-    service: mockServices[1]._id,
+    _id: "2",
+    customer: {
+      _id: mockUsers[2]._id,
+      firstName: mockUsers[2].firstName,
+      lastName: mockUsers[2].lastName,
+      email: mockUsers[2].email,
+    },
+    service: {
+      _id: mockServices[1]._id,
+      name: mockServices[1].name,
+      price: mockServices[1].price,
+    },
     appointmentDate: new Date(Date.now() + 172800000), // Day after tomorrow
     appointmentTime: "14:00",
     status: "confirmed",
-    technician: mockUsers[1].id,
+    technician: {
+      _id: mockUsers[1]._id,
+      firstName: mockUsers[1].firstName,
+      lastName: mockUsers[1].lastName,
+      email: mockUsers[1].email,
+    },
     estimatedCost: mockServices[1].price,
     car: { make: "Honda", model: "Civic", year: 2021 },
     issue: { description: "Regular maintenance" },
@@ -250,7 +279,7 @@ export const mockBlogs = [
 
 export const mockContacts = [
   {
-    id: "1",
+    _id: "1",
     name: "John Doe",
     email: "johndoe@test.com",
     phone: "1234567890",
@@ -258,9 +287,10 @@ export const mockContacts = [
     type: "general",
     status: "new",
     priority: "medium",
+    createdAt: new Date(),
   },
   {
-    id: "2",
+    _id: "2",
     name: "Jane Smith",
     email: "jane@test.com",
     phone: "0987654321",
@@ -268,11 +298,27 @@ export const mockContacts = [
     type: "support",
     status: "resolved",
     priority: "high",
+    createdAt: new Date(),
   },
 ];
 
 // Mock API functions that return promises
 export const mockAPI = {
+  admin: {
+    getDashboardStats: () =>
+      Promise.resolve({
+        data: {
+          data: {
+            overview: {
+              totalUsers: mockUsers.length,
+              totalServices: mockServices.length,
+              totalBookings: mockBookings.length,
+              totalContacts: mockContacts.length,
+            },
+          },
+        },
+      }),
+  },
   auth: {
     login: (email, password) => {
       const user = mockUsers.find(
@@ -303,7 +349,7 @@ export const mockAPI = {
         });
       }
       const newUser = {
-        id: (mockUsers.length + 1).toString(),
+        _id: (mockUsers.length + 1).toString(),
         ...userData,
         role: "user",
         isActive: true,
@@ -330,7 +376,15 @@ export const mockAPI = {
       Promise.resolve({
         data: {
           data: {
-            user: mockUsers.find((u) => u.id === id),
+            user: mockUsers.find((u) => u._id === id),
+          },
+        },
+      }),
+    getTechnicians: () =>
+      Promise.resolve({
+        data: {
+          data: {
+            technicians: mockUsers.filter((u) => u.role === "technician"),
           },
         },
       }),
@@ -374,10 +428,27 @@ export const mockAPI = {
       Promise.resolve({
         data: {
           data: {
-            bookings: mockBookings.filter((b) => b.customer === userId),
+            bookings: mockBookings.filter((b) => b.customer._id === userId),
           },
         },
       }),
+    cancel: (id) => {
+      const bookingIndex = mockBookings.findIndex((b) => b._id === id);
+      if (bookingIndex !== -1) {
+        mockBookings[bookingIndex].status = "cancelled";
+        return Promise.resolve({
+          data: {
+            message: "Booking cancelled successfully",
+          },
+        });
+      } else {
+        return Promise.reject({
+          response: {
+            data: { message: "Booking not found" },
+          },
+        });
+      }
+    },
     getAvailableSlots: () => {
       // Return mock time slots for the given date
       const slots = [

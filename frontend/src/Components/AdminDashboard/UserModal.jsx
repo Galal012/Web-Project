@@ -1,23 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { usersAPI } from "../../services/api";
+import { mockAPI } from "../../services/mockData";
 import toast from "react-hot-toast";
 
-interface UserModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
-  userToEdit?: any;
-}
-
-const UserModal: React.FC<UserModalProps> = ({
-  isOpen,
-  onClose,
-  onSuccess,
-  userToEdit,
-}) => {
+const UserModal = ({ isOpen, onClose, onSuccess, userToEdit }) => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
 
@@ -41,7 +29,7 @@ const UserModal: React.FC<UserModalProps> = ({
           lastName: userToEdit.lastName,
           email: userToEdit.email,
           phone: userToEdit.phone || "",
-          password: "", // Don't fill password on edit for security
+          password: "",
           role: userToEdit.role,
           isActive: userToEdit.isActive,
         });
@@ -59,41 +47,41 @@ const UserModal: React.FC<UserModalProps> = ({
     }
   }, [isOpen, userToEdit]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e) => {
     const value =
-      e.target.type === "checkbox"
-        ? (e.target as HTMLInputElement).checked
-        : e.target.value;
+      e.target.type === "checkbox" ? e.target.checked : e.target.value;
 
     setFormData({ ...formData, [e.target.name]: value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       // Prepare data (remove empty password if editing so we don't overwrite it with "")
-      const dataToSend: any = { ...formData };
+      const dataToSend = { ...formData };
       if (userToEdit && !dataToSend.password) {
         delete dataToSend.password;
       }
 
       if (userToEdit) {
-        await usersAPI.update(userToEdit._id, dataToSend);
+        console.log("Updating user:", dataToSend);
         toast.success(t("modals.user.successUpdate"));
       } else {
-        await usersAPI.create(dataToSend);
+        await mockAPI.auth.register(dataToSend);
         toast.success(t("modals.user.successCreate"));
       }
 
       onSuccess();
       onClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.error(error.response?.data?.message || "Failed to save user");
+      toast.error(
+        error.response?.data?.message || isRTL
+          ? "فشل حفظ المستخدم"
+          : "Failed to save user"
+      );
     } finally {
       setLoading(false);
     }

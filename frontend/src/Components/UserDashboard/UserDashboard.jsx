@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -7,10 +7,10 @@ import {
   faUser,
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import UserBookings from "../../Components/UserDashboard/UserBookings";
-import UserProfile from "../../Components/UserDashboard/UserProfile";
+import UserBookings from "./UserBookings";
+import UserProfile from "./UserProfile";
 
-const UserDashboard: React.FC = () => {
+const UserDashboard = () => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
   const navigate = useNavigate();
@@ -59,7 +59,7 @@ const UserDashboard: React.FC = () => {
               <button
                 onClick={() => setActiveTab("bookings")}
                 className={`w-full flex items-center gap-3 px-6 py-4 transition-colors cursor-pointer ${
-                  isRTL ? "text-right flex-row-reverse" : "text-left"
+                  isRTL ? "text-right" : "text-left"
                 } ${
                   activeTab === "bookings"
                     ? `bg-yellow-50 text-yellow-600 ${
@@ -75,7 +75,7 @@ const UserDashboard: React.FC = () => {
               <button
                 onClick={() => setActiveTab("profile")}
                 className={`w-full flex items-center gap-3 px-6 py-4 transition-colors cursor-pointer ${
-                  isRTL ? "text-right flex-row-reverse" : "text-left"
+                  isRTL ? "text-right" : "text-left"
                 } ${
                   activeTab === "profile"
                     ? `bg-yellow-50 text-yellow-600 ${

@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { authAPI } from "../../services/api";
 import toast from "react-hot-toast";
 
-const UserProfile: React.FC = () => {
+const UserProfile = () => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
 
@@ -12,7 +11,11 @@ const UserProfile: React.FC = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [loading, setLoading] = useState(false);
 
-  const { register: registerInfo, handleSubmit: submitInfo } = useForm({
+  const {
+    register: registerInfo,
+    handleSubmit: submitInfo,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       firstName: user.firstName,
       lastName: user.lastName,
@@ -26,34 +29,29 @@ const UserProfile: React.FC = () => {
     reset: resetPass,
   } = useForm();
 
-  const onUpdateInfo = async (data: any) => {
+  const onUpdateInfo = async (data) => {
     try {
       setLoading(true);
-      const res = await authAPI.updateDetails(data);
-      // Update local storage
-      localStorage.setItem("user", JSON.stringify(res.data.data.user));
+      console.log("Updating user info with data:", data);
       toast.success(t("profile.successUpdate"));
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update profile");
+    } catch (error) {
+      toast.error(error.response?.data?.message || t("profile.failUpdate"));
     } finally {
       setLoading(false);
     }
   };
 
-  const onChangePassword = async (data: any) => {
+  const onChangePassword = async (data) => {
     if (data.newPassword !== data.confirmPassword) {
       return toast.error(t("profile.passMismatch"));
     }
     try {
       setLoading(true);
-      await authAPI.changePassword({
-        currentPassword: data.currentPassword,
-        newPassword: data.newPassword,
-      });
+      console.log("Changing password with data:", data);
       toast.success(t("profile.successPass"));
       resetPass();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to change password");
+    } catch (error) {
+      toast.error(error.response?.data?.message || t("profile.failPass"));
     } finally {
       setLoading(false);
     }
@@ -77,18 +75,38 @@ const UserProfile: React.FC = () => {
                 {t("profile.firstName")}
               </label>
               <input
-                {...registerInfo("firstName")}
+                type="text"
+                {...registerInfo("firstName", {
+                  required: isRTL
+                    ? "الاسم الأول مطلوب"
+                    : "First name is required",
+                })}
                 className="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-yellow-500"
               />
+              {errors.firstName && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.firstName.message}
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 {t("profile.lastName")}
               </label>
               <input
-                {...registerInfo("lastName")}
+                type="text"
+                {...registerInfo("lastName", {
+                  required: isRTL
+                    ? "اسم العائلة مطلوب"
+                    : "Last name is required",
+                })}
                 className="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-yellow-500"
               />
+              {errors.lastName && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.lastName.message}
+                </p>
+              )}
             </div>
           </div>
           <div>
@@ -96,9 +114,25 @@ const UserProfile: React.FC = () => {
               {t("profile.phone")}
             </label>
             <input
-              {...registerInfo("phone")}
+              type="tel"
+              {...registerInfo("phone", {
+                required: isRTL
+                  ? "رقم الهاتف مطلوب"
+                  : "Phone number is required",
+                pattern: {
+                  value: /^[0-9+\-\s()]+$/,
+                  message: isRTL
+                    ? "رقم الهاتف غير صحيح"
+                    : "Invalid phone number",
+                },
+              })}
               className="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-yellow-500"
             />
+            {errors.phone && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.phone.message}
+              </p>
+            )}
           </div>
           <div className="opacity-50">
             <label className="block text-sm font-medium text-gray-700">

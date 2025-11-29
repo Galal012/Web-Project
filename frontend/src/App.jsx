@@ -38,10 +38,7 @@ function App() {
 
   return (
     <div className={`min-h-screen ${isRTL ? "rtl" : "ltr"}`}>
-      <Toaster
-        position="top-center"
-        reverseOrder={false}
-      />
+      <Toaster position="top-center" reverseOrder={false} />
       <WhatsAppButton />
       <TopBar />
       <Navbar />

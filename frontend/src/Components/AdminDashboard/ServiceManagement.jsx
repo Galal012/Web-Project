@@ -1,5 +1,5 @@
 import ServiceModal from "./ServiceModal";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -11,34 +11,19 @@ import {
   faToggleOn,
   faToggleOff,
 } from "@fortawesome/free-solid-svg-icons";
-// FIX: Use new API
-import { servicesAPI } from "../../services/api";
+import { mockAPI } from "../../services/mockData";
 import toast from "react-hot-toast";
 
-interface Service {
-  _id: string;
-  name: string;
-  // nameAr: string; // REMOVED
-  description: string;
-  // descriptionAr: string; // REMOVED
-  price: number;
-  category: string;
-  isActive: boolean;
-  // isPopular: boolean; // REMOVED
-  images: any[];
-  createdAt: string;
-}
-
-const ServiceManagement: React.FC = () => {
+const ServiceManagement = () => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
-  const [services, setServices] = useState<Service[]>([]);
+  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [editingService, setEditingService] = useState<Service | null>(null);
+  const [editingService, setEditingService] = useState(null);
 
   useEffect(() => {
     loadServices();
@@ -47,18 +32,17 @@ const ServiceManagement: React.FC = () => {
   const loadServices = async () => {
     try {
       setLoading(true);
-      // FIX: Use servicesAPI.getAll
-      const response = await servicesAPI.getAll({ limit: 50 });
+      const response = await mockAPI.services.getAll();
       setServices(response.data.data.services);
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.error("Failed to load services");
+      toast.error(isRTL ? "فشل تحميل الخدمات" : "Failed to load services");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteService = async (id: string) => {
+  const handleDeleteService = async (id) => {
     if (
       !window.confirm(
         isRTL
@@ -70,42 +54,32 @@ const ServiceManagement: React.FC = () => {
     }
 
     try {
-      // FIX: Use servicesAPI.delete
-      await servicesAPI.delete(id);
+      console.log("Deleting service with ID:", id);
       toast.success(
         isRTL ? "تم حذف الخدمة بنجاح" : "Service deleted successfully"
       );
-      loadServices();
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.error("Failed to delete service");
+      toast.error(isRTL ? "فشل حذف الخدمة" : "Failed to delete service");
     }
   };
 
-  const handleToggleStatus = async (service: Service) => {
+  const handleToggleStatus = async (service) => {
     try {
-      // We must use FormData because our API expects multipart/form-data for PUT requests
-      const formData = new FormData();
-
-      // 1. Append the new status
-      formData.append("isActive", (!service.isActive).toString());
-
-      // 2. Append the REQUIRED fields to satisfy backend validation
-      formData.append("name", service.name);
-      formData.append("description", service.description);
-      formData.append("price", service.price.toString());
-      formData.append("duration", "60"); // or service.duration if you have it (default to 60 to pass validation)
-      formData.append("category", service.category);
-
-      // Note: We don't need to re-send the image. The backend keeps the old one if no new file is sent.
-
-      await servicesAPI.update(service._id, formData);
-
+      const updatedService = {
+        ...service,
+        isActive: !service.isActive,
+      };
+      console.log("Updating service status:", updatedService);
+      setServices((prevServices) =>
+        prevServices.map((s) => (s._id === service._id ? updatedService : s))
+      );
       toast.success(isRTL ? "تم تحديث حالة الخدمة" : "Service status updated");
-      loadServices();
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.error("Failed to update service status");
+      toast.error(
+        isRTL ? "فشل تحديث حالة الخدمة" : "Failed to update service status"
+      );
     }
   };
 
@@ -124,15 +98,15 @@ const ServiceManagement: React.FC = () => {
   });
 
   const categories = [
-    "engine",
-    "transmission",
-    "brakes",
-    "tires",
-    "electrical",
-    "ac",
-    "diagnostic",
-    "oil",
-    "other",
+    "Engine",
+    "Transmission",
+    "Brakes",
+    "Tires",
+    "Electrical",
+    "AC",
+    "Diagnostic",
+    "Oil",
+    "Other",
   ];
 
   if (loading) {
@@ -189,11 +163,8 @@ const ServiceManagement: React.FC = () => {
           >
             <option value="">{isRTL ? "جميع الفئات" : "All Categories"}</option>
             {categories.map((category) => (
-              <option
-                key={category}
-                value={category.charAt(0).toUpperCase() + category.slice(1)}
-              >
-                {t(`modals.service.categories.${category}`)}
+              <option key={category} value={category}>
+                {t(`modals.service.categories.${category.toLowerCase()}`)}
               </option>
             ))}
           </select>
@@ -211,7 +182,7 @@ const ServiceManagement: React.FC = () => {
       </div>
 
       {/* Services Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredServices.map((service) => (
           <div
             key={service._id}
@@ -243,7 +214,9 @@ const ServiceManagement: React.FC = () => {
                   ${service.price}
                 </span>
                 <span className="text-sm text-gray-500">
-                  {service.category}
+                  {t(
+                    `modals.service.categories.${service.category.toLowerCase()}`
+                  )}
                 </span>
               </div>
 
@@ -305,7 +278,7 @@ const ServiceManagement: React.FC = () => {
       <ServiceModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        onSuccess={loadServices} // This reloads the list after saving
+        onSuccess={loadServices}
         serviceToEdit={editingService}
       />
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -8,27 +8,15 @@ import {
   faWrench,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
-import { bookingsAPI, usersAPI } from "../../services/api";
+import { mockAPI } from "../../services/mockData";
 import toast from "react-hot-toast";
 
-interface BookingModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
-  booking: any;
-}
-
-const BookingModal: React.FC<BookingModalProps> = ({
-  isOpen,
-  onClose,
-  onSuccess,
-  booking,
-}) => {
+const BookingModal = ({ isOpen, onClose, onSuccess, booking }) => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
 
   const [loading, setLoading] = useState(false);
-  const [technicians, setTechnicians] = useState<any[]>([]);
+  const [technicians, setTechnicians] = useState([]);
   const [selectedTechnician, setSelectedTechnician] = useState("");
 
   // Load technicians when modal opens
@@ -46,10 +34,10 @@ const BookingModal: React.FC<BookingModalProps> = ({
 
   const loadTechnicians = async () => {
     try {
-      const response = await usersAPI.getTechnicians();
+      const response = await mockAPI.users.getTechnicians();
       setTechnicians(response.data.data.technicians);
     } catch (error) {
-      console.error("Failed to load technicians");
+      console.error(isRTL ? "فشل تحميل الفنيين" : "Failed to load technicians");
     }
   };
 
@@ -58,14 +46,16 @@ const BookingModal: React.FC<BookingModalProps> = ({
 
     try {
       setLoading(true);
-      await bookingsAPI.assignTechnician(booking._id, selectedTechnician);
+      console.log("Assigning technician:", selectedTechnician);
       toast.success(t("modals.booking.successAssign"));
       onSuccess();
       onClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
       toast.error(
-        error.response?.data?.message || "Failed to assign technician"
+        error.response?.data?.message || isRTL
+          ? "فشل تعيين الفني"
+          : "Failed to assign technician"
       );
     } finally {
       setLoading(false);
@@ -171,14 +161,14 @@ const BookingModal: React.FC<BookingModalProps> = ({
             <h3 className="font-bold text-gray-800 mb-4">
               {t("modals.booking.assignTech")}
             </h3>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <select
                 value={selectedTechnician}
                 onChange={(e) => setSelectedTechnician(e.target.value)}
                 className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-yellow-500 cursor-pointer"
               >
                 <option value="">{t("modals.booking.selectTech")}</option>
-                {technicians.map((tech: any) => (
+                {technicians.map((tech) => (
                   <option key={tech._id} value={tech._id}>
                     {tech.firstName} {tech.lastName} ({tech.email})
                   </option>
@@ -188,7 +178,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
               <button
                 onClick={handleAssign}
                 disabled={loading || !selectedTechnician}
-                className="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                className="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 disabled:opacity-50 flex justify-center items-center gap-2 cursor-pointer"
               >
                 {loading && (
                   <FontAwesomeIcon icon={faSpinner} className="animate-spin" />

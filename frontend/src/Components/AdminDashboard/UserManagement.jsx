@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -11,76 +11,42 @@ import {
   faUser,
   faTools,
 } from "@fortawesome/free-solid-svg-icons";
-import { usersAPI } from "../../services/api";
+import { mockAPI } from "../../services/mockData";
 import UserModal from "./UserModal";
 import toast from "react-hot-toast";
 
-interface User {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  role: "user" | "admin" | "technician";
-  isActive: boolean;
-  createdAt: string;
-  lastLogin?: string;
-}
-
-const UserManagement: React.FC = () => {
+const UserManagement = () => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Search States
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-
   const [roleFilter, setRoleFilter] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
   const [showModal, setShowModal] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState(null);
 
-  // 1. Debounce Logic: Update 'debouncedSearchTerm' 500ms after user stops typing
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-      if (searchTerm !== debouncedSearchTerm) {
-        setCurrentPage(1); // Reset to page 1 if search changes
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  // 2. Load Data when Debounced Term, Role, or Page changes
+  // Load Data when Role changes
   useEffect(() => {
     loadUsers();
-  }, [currentPage, roleFilter, debouncedSearchTerm]);
+  }, [roleFilter]);
 
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const response = await usersAPI.getAll({
-        page: currentPage,
-        limit: 10,
-        role: roleFilter || undefined,
-        query: debouncedSearchTerm || undefined, // Use the debounced term
-      });
+      const response = await mockAPI.users.getAll();
       setUsers(response.data.data.users);
-      setTotalPages(response.data.pages);
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.error("Failed to load users");
+      toast.error(isRTL ? "فشل تحميل المستخدمين" : "Failed to load users");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteUser = async (id: string) => {
+  const handleDeleteUser = async (id) => {
     if (
       !window.confirm(
         isRTL
@@ -92,31 +58,32 @@ const UserManagement: React.FC = () => {
     }
 
     try {
-      await usersAPI.delete(id);
+      console.log("Deleting user with id:", id);
       toast.success(isRTL ? "تم حذف المستخدم" : "User deleted successfully");
-      loadUsers();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to delete user");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || isRTL
+          ? "فشل حذف المستخدم"
+          : "Failed to delete user"
+      );
     }
   };
 
-  const handleUpdateUserRole = async (userId: string, newRole: string) => {
+  const handleUpdateUserRole = async (userId, newRole) => {
     try {
-      await usersAPI.updateRole(userId, newRole);
+      console.log("Updating user role:", userId, newRole);
       toast.success(
         isRTL ? "تم تحديث دور المستخدم" : "User role updated successfully"
       );
       setUsers((prev) =>
-        prev.map((u) => (u._id === userId ? { ...u, role: newRole as any } : u))
+        prev.map((u) => (u._id === userId ? { ...u, role: newRole } : u))
       );
-    } catch (error: any) {
-      toast.error("Failed to update user role");
+    } catch (error) {
+      toast.error(
+        isRTL ? "فشل تحديث دور المستخدم" : "Failed to update user role"
+      );
     }
   };
-
-  // 3. REMOVED BLOCKING LOADER
-  // We removed the "if (loading) return <Spinner>" block.
-  // Instead, the UI stays visible while loading.
 
   return (
     <div className="space-y-6">
@@ -183,39 +150,39 @@ const UserManagement: React.FC = () => {
             loading ? "opacity-50" : "opacity-100"
           }`}
         >
-          <table className="w-full">
+          <table className="w-full hidden md:table">
             <thead className="bg-gray-50">
               <tr>
                 <th
-                  className={`px-6 py-3 ${
+                  className={`px-3 lg:px-6 py-3 ${
                     isRTL ? "text-right" : "text-left"
                   } text-xs font-medium text-gray-500 uppercase tracking-wider`}
                 >
                   {isRTL ? "المستخدم" : "User"}
                 </th>
                 <th
-                  className={`px-6 py-3 ${
+                  className={`px-3 lg:px-6 py-3 ${
                     isRTL ? "text-right" : "text-left"
                   } text-xs font-medium text-gray-500 uppercase tracking-wider`}
                 >
                   {isRTL ? "البريد الإلكتروني" : "Email"}
                 </th>
                 <th
-                  className={`px-6 py-3 ${
+                  className={`px-3 lg:px-6 py-3 ${
                     isRTL ? "text-right" : "text-left"
                   } text-xs font-medium text-gray-500 uppercase tracking-wider`}
                 >
                   {isRTL ? "الدور" : "Role"}
                 </th>
                 <th
-                  className={`px-6 py-3 ${
+                  className={`px-3 lg:px-6 py-3 ${
                     isRTL ? "text-right" : "text-left"
                   } text-xs font-medium text-gray-500 uppercase tracking-wider`}
                 >
                   {isRTL ? "الحالة" : "Status"}
                 </th>
                 <th
-                  className={`px-6 py-3 ${
+                  className={`px-3 lg:px-6 py-3 ${
                     isRTL ? "text-right" : "text-left"
                   } text-xs font-medium text-gray-500 uppercase tracking-wider`}
                 >
@@ -226,7 +193,7 @@ const UserManagement: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {users.map((user) => (
                 <tr key={user._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 lg:px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="shrink-0 h-10 w-10">
                         <div className="h-10 w-10 rounded-full bg-yellow-500 flex items-center justify-center">
@@ -241,18 +208,18 @@ const UserManagement: React.FC = () => {
                           {user.firstName} {user.lastName}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {new Date(user.createdAt).toLocaleDateString()}
+                          {new Date(user.createdAt).toLocaleDateString(isRTL ? "ar-EG" : "en-US")}
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 lg:px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{user.email}</div>
                     {user.phone && (
                       <div className="text-sm text-gray-500">{user.phone}</div>
                     )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 lg:px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <FontAwesomeIcon
                         icon={
@@ -283,7 +250,7 @@ const UserManagement: React.FC = () => {
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 lg:px-6 py-4 whitespace-nowrap">
                     <span
                       className={`px-2 py-1 rounded-full text-xs ${
                         user.isActive
@@ -296,26 +263,28 @@ const UserManagement: React.FC = () => {
                         : t("status.inactive")}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          setEditingUser(user);
-                          setShowModal(true);
-                        }}
-                        className="text-green-600 hover:text-green-800 cursor-pointer"
-                        title={isRTL ? "تعديل" : "Edit"}
-                      >
-                        <FontAwesomeIcon icon={faEdit} />
-                      </button>
+                  <td className="px-3 lg:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setEditingUser(user);
+                            setShowModal(true);
+                          }}
+                          className="text-green-600 hover:text-green-800 cursor-pointer"
+                          title={isRTL ? "تعديل" : "Edit"}
+                        >
+                          <FontAwesomeIcon icon={faEdit} />
+                        </button>
 
-                      <button
-                        onClick={() => handleDeleteUser(user._id)}
-                        className="text-red-600 hover:text-red-800 cursor-pointer"
-                        title={isRTL ? "حذف" : "Delete"}
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </button>
+                        <button
+                          onClick={() => handleDeleteUser(user._id)}
+                          className="text-red-600 hover:text-red-800 cursor-pointer"
+                          title={isRTL ? "حذف" : "Delete"}
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </div>
 
                       <select
                         value={user.role}
@@ -340,35 +309,135 @@ const UserManagement: React.FC = () => {
               ))}
             </tbody>
           </table>
+
+          <div className="md:hidden divide-y divide-gray-200">
+            {users.map((user) => (
+              <div
+                key={user._id}
+                className="hover:bg-gray-50 flex justify-between p-6 gap-10"
+              >
+                <div className="flex flex-col justify-between items-start gap-4">
+                  <div className="whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="shrink-0 h-10 w-10">
+                        <div className="h-10 w-10 rounded-full bg-yellow-500 flex items-center justify-center">
+                          <FontAwesomeIcon
+                            icon={faUser}
+                            className="text-white"
+                          />
+                        </div>
+                      </div>
+                      <div className={`${isRTL ? "mr-4" : "ml-4"}`}>
+                        <div className="text-sm font-medium text-gray-900">
+                          {user.firstName} {user.lastName}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {new Date(user.createdAt).toLocaleDateString(isRTL ? "ar-EG" : "en-US")}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{user.email}</div>
+                    {user.phone && (
+                      <div className="text-sm text-gray-500">{user.phone}</div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-col justify-between items-start gap-4">
+                  <div className="whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <FontAwesomeIcon
+                        icon={
+                          user.role === "admin"
+                            ? faUserShield
+                            : user.role === "technician"
+                            ? faTools
+                            : faUser
+                        }
+                        className={
+                          user.role === "admin"
+                            ? "text-purple-500"
+                            : user.role === "technician"
+                            ? "text-slate-600"
+                            : "text-blue-500"
+                        }
+                      />
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          user.role === "admin"
+                            ? "bg-purple-100 text-purple-800"
+                            : user.role === "technician"
+                            ? "bg-slate-100 text-slate-800"
+                            : "bg-blue-100 text-blue-800"
+                        }`}
+                      >
+                        {t(`role.${user.role}`)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="whitespace-nowrap text-sm font-medium">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <div className="whitespace-nowrap">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs ${
+                              user.isActive
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {user.isActive
+                              ? t("status.active")
+                              : t("status.inactive")}
+                          </span>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            setEditingUser(user);
+                            setShowModal(true);
+                          }}
+                          className="text-green-600 hover:text-green-800 cursor-pointer"
+                          title={isRTL ? "تعديل" : "Edit"}
+                        >
+                          <FontAwesomeIcon icon={faEdit} />
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteUser(user._id)}
+                          className="text-red-600 hover:text-red-800 cursor-pointer"
+                          title={isRTL ? "حذف" : "Delete"}
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </div>
+
+                      <select
+                        value={user.role}
+                        onChange={(e) =>
+                          handleUpdateUserRole(user._id, e.target.value)
+                        }
+                        className="text-xs border border-gray-300 rounded px-2 py-1 cursor-pointer"
+                      >
+                        <option value="user">
+                          {isRTL ? "مستخدم" : "User"}
+                        </option>
+                        <option value="technician">
+                          {isRTL ? "فني" : "Technician"}
+                        </option>
+                        <option value="admin">
+                          {isRTL ? "مدير" : "Admin"}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 cursor-pointer"
-          >
-            {isRTL ? "السابق" : "Previous"}
-          </button>
-
-          <span className="px-4 py-2 text-gray-600">
-            {currentPage} / {totalPages}
-          </span>
-
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 cursor-pointer"
-          >
-            {isRTL ? "التالي" : "Next"}
-          </button>
-        </div>
-      )}
 
       {users.length === 0 && !loading && (
         <div className="text-center py-12">

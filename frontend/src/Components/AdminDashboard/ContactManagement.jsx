@@ -6,75 +6,55 @@ import {
   faEye,
   faEnvelopeOpen,
 } from "@fortawesome/free-solid-svg-icons";
-import { contactAPI } from "../../services/api";
+import { mockAPI } from "../../services/mockData";
 import ContactModal from "./ContactModal";
 import toast from "react-hot-toast";
 
-interface Contact {
-  _id: string;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: "new" | "in-progress" | "resolved" | "closed";
-  type: string;
-  priority: string;
-  createdAt: string;
-}
-
-const ContactManagement: React.FC = () => {
+const ContactManagement = () => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
-  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Search & Filter
   const [statusFilter, setStatusFilter] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
   // Modal
   const [showModal, setShowModal] = useState(false);
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [selectedContact, setSelectedContact] = useState(null);
 
   useEffect(() => {
     loadContacts();
-  }, [currentPage, statusFilter]);
+  }, [statusFilter]);
 
   const loadContacts = async () => {
     try {
       setLoading(true);
-      const params: any = {
-        page: currentPage,
-        limit: 10,
-        status: statusFilter || undefined,
-      };
-
-      const response = await contactAPI.getAll(params);
+      const response = await mockAPI.contacts.getAll();
       setContacts(response.data.data.contacts);
-      setTotalPages(response.data.pages);
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.error("Failed to load messages");
+      toast.error(isRTL ? "فشل تحميل الرسائل" : "Failed to load messages");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this message?"))
       return;
 
     try {
-      await contactAPI.delete(id);
-      toast.success("Message deleted");
-      loadContacts();
+      console.log("Deleting contact with id:", id);
+      toast.success(
+        isRTL ? "تم حذف الرسالة بنجاح" : "Message deleted successfully"
+      );
     } catch (error) {
-      toast.error("Failed to delete message");
+      toast.error(isRTL ? "فشل حذف الرسالة" : "Failed to delete message");
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status) => {
     switch (status) {
       case "new":
         return "bg-red-100 text-red-800";
@@ -127,8 +107,8 @@ const ContactManagement: React.FC = () => {
             key={contact._id}
             className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow"
           >
-            <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
-              {/* Sender & Subject */}
+            <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
+              {/* Sender */}
               <div className="flex items-center gap-4 min-w-[250px] flex-1">
                 <div
                   className={`shrink-0 h-12 w-12 rounded-full flex items-center justify-center ${
@@ -140,9 +120,6 @@ const ContactManagement: React.FC = () => {
                   <FontAwesomeIcon icon={faEnvelopeOpen} className="text-lg" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {contact.subject}
-                  </h3>
                   <p className="text-sm text-gray-600">
                     From: {contact.name} ({contact.email})
                   </p>
@@ -151,7 +128,9 @@ const ContactManagement: React.FC = () => {
 
               {/* Date */}
               <div className="text-sm text-gray-500">
-                {new Date(contact.createdAt).toLocaleDateString()}
+                {new Date(contact.createdAt).toLocaleDateString(
+                  isRTL ? "ar-EG" : "en-US"
+                )}
               </div>
 
               {/* Status & Actions */}
@@ -190,34 +169,9 @@ const ContactManagement: React.FC = () => {
         ))}
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 pt-4">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50 cursor-pointer"
-          >
-            Prev
-          </button>
-          <span className="text-gray-600 px-2">
-            {currentPage} / {totalPages}
-          </span>
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50 cursor-pointer"
-          >
-            Next
-          </button>
-        </div>
-      )}
-
       {contacts.length === 0 && !loading && (
         <div className="text-center py-12 text-gray-500">
-          No messages found.
+          {isRTL ? "لا توجد رسائل" : "No messages found"}
         </div>
       )}
 

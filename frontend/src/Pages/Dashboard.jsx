@@ -5,7 +5,7 @@ import UserDashboard from "../Components/UserDashboard/UserDashboard";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [role, setRole] = (useState < string) | (null > null);
+  const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

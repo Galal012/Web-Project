@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -6,22 +6,9 @@ import {
   faUpload,
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
-import { servicesAPI } from "../../services/api";
 import toast from "react-hot-toast";
 
-interface ServiceModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
-  serviceToEdit?: any;
-}
-
-const ServiceModal: React.FC<ServiceModalProps> = ({
-  isOpen,
-  onClose,
-  onSuccess,
-  serviceToEdit,
-}) => {
+const ServiceModal = ({ isOpen, onClose, onSuccess, serviceToEdit }) => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
 
@@ -33,19 +20,19 @@ const ServiceModal: React.FC<ServiceModalProps> = ({
     duration: "",
     category: "Other",
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const categories = [
-    "engine",
-    "transmission",
-    "brakes",
-    "tires",
-    "electrical",
-    "ac",
-    "diagnostic",
-    "oil",
-    "other",
+    "Engine",
+    "Transmission",
+    "Brakes",
+    "Tires",
+    "Electrical",
+    "AC",
+    "Diagnostic",
+    "Oil",
+    "Other",
   ];
 
   // Reset or Populate form when opening
@@ -78,15 +65,11 @@ const ServiceModal: React.FC<ServiceModalProps> = ({
     }
   }, [isOpen, serviceToEdit]);
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
+  const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setImageFile(file);
@@ -94,35 +77,28 @@ const ServiceModal: React.FC<ServiceModalProps> = ({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const data = new FormData();
-      data.append("name", formData.name);
-      data.append("description", formData.description);
-      data.append("price", formData.price);
-      data.append("duration", formData.duration);
-      data.append("category", formData.category);
-
-      if (imageFile) {
-        data.append("files", imageFile);
-      }
-
       if (serviceToEdit) {
-        await servicesAPI.update(serviceToEdit._id, data);
+        console.log("Updating service with data:", formData);
         toast.success(t("modals.service.successUpdate"));
       } else {
-        await servicesAPI.create(data);
+        console.log("Creating service with data:", formData);
         toast.success(t("modals.service.successCreate"));
       }
 
       onSuccess();
       onClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.error(error.response?.data?.message || "Failed to save service");
+      toast.error(
+        error.response?.data?.message || isRTL
+          ? "فشل حفظ الخدمة"
+          : "Failed to save service"
+      );
     } finally {
       setLoading(false);
     }
@@ -208,8 +184,8 @@ const ServiceModal: React.FC<ServiceModalProps> = ({
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent cursor-pointer"
             >
               {categories.map((cat) => (
-                <option key={cat} value={cat.charAt(0).toUpperCase() + cat.slice(1)}>
-                  {t(`modals.service.categories.${cat}`)}
+                <option key={cat} value={cat.toLocaleLowerCase()}>
+                  {t(`modals.service.categories.${cat.toLocaleLowerCase()}`)}
                 </option>
               ))}
             </select>

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChartBar,
@@ -12,58 +13,24 @@ import {
   faSpinner,
   faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
-// Import from our new unified API file
-import {
-  adminAPI,
-  bookingsAPI,
-  contactAPI,
-} from "../../services/api";
+import { mockAPI } from "../../services/mockData";
 import ServiceManagement from "./ServiceManagement";
 import UserManagement from "./UserManagement";
 import BookingManagement from "./BookingManagement";
-import ContactManagement from "./ContactManagement"; // Add this line
+import ContactManagement from "./ContactManagement";
 import toast from "react-hot-toast";
 
-interface DashboardStats {
-  overview: {
-    totalServices: number;
-    activeServices?: number; // Made optional to be safe
-    totalBlogs: number;
-    publishedBlogs?: number;
-    totalBookings: number;
-    pendingBookings: number;
-    totalReviews?: number; // Removed reviews
-    totalContacts: number;
-    totalUsers: number;
-    totalProjects?: number; // Removed projects
-  };
-  monthly: {
-    bookings: number;
-    revenue: number;
-    contacts: number;
-  };
-  recent: {
-    bookings: any[];
-    contacts: any[];
-    services?: any[];
-    blogs?: any[];
-  };
-}
-
-const AdminDashboard: React.FC = () => {
+const AdminDashboard = () => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(
-    null
-  );
+  const [error, setError] = useState(null);
+  const [dashboardStats, setDashboardStats] = useState(null);
 
-  // We store these for the "Recent" lists in Overview,
-  // but the Management components fetch their own data.
-  const [bookings, setBookings] = useState<any[]>([]);
-  const [contacts, setContacts] = useState<any[]>([]);
+  const [bookings, setBookings] = useState([]);
+  const [contacts, setContacts] = useState([]);
 
   useEffect(() => {
     loadDashboardData();
@@ -77,18 +44,22 @@ const AdminDashboard: React.FC = () => {
       // Fetch all data in parallel
       const [statsResponse, bookingsResponse, contactsResponse] =
         await Promise.all([
-          adminAPI.getDashboardStats(),
-          bookingsAPI.getAll({ limit: 5 }),
-          contactAPI.getAll({ limit: 5 }),
+          mockAPI.admin.getDashboardStats(),
+          mockAPI.bookings.getAll(),
+          mockAPI.contacts.getAll(),
         ]);
 
       setDashboardStats(statsResponse.data.data);
       setBookings(bookingsResponse.data.data.bookings);
-      setContacts(contactsResponse.data.data.contacts); // Direct access, no ._doc mapping needed
-    } catch (err: any) {
+      setContacts(contactsResponse.data.data.contacts);
+    } catch (err) {
       console.error("API Error:", err);
       setError(err.response?.data?.message || "Failed to load dashboard data");
-      toast.error("Failed to load dashboard data");
+      toast.error(
+        isRTL
+          ? "فشل تحميل بيانات لوحة المعلومات"
+          : "Failed to load dashboard data"
+      );
     } finally {
       setLoading(false);
     }
@@ -97,35 +68,31 @@ const AdminDashboard: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    window.location.href = "/login";
+    navigate("/login");
   };
 
   const tabs = [
     {
       id: "overview",
-      label: t("dashboard.overview", "Overview"),
+      label: t("dashboard.overview"),
       icon: faChartBar,
     },
-    { id: "users", label: t("dashboard.users", "Users"), icon: faUsers },
+    { id: "users", label: t("dashboard.users"), icon: faUsers },
     {
       id: "services",
-      label: t("dashboard.services", "Services"),
+      label: t("dashboard.services"),
       icon: faWrench,
     },
     {
       id: "bookings",
-      label: t("dashboard.bookings", "Bookings"),
+      label: t("dashboard.bookings"),
       icon: faCalendar,
     },
     {
       id: "contacts",
-      label: t("dashboard.contacts", "Contacts"),
+      label: t("dashboard.contacts"),
       icon: faEnvelope,
     },
-    // Removed Blogs tab for simplicity if you don't have a BlogManagement component yet
-    // { id: "blogs", label: t("dashboard.blogs"), icon: faStar },
-    // Settings is just a placeholder for now
-    // { id: "settings", label: t("dashboard.settings"), icon: faCog },
   ];
 
   const renderOverview = () => {
@@ -158,7 +125,7 @@ const AdminDashboard: React.FC = () => {
       },
     ];
 
-    const getBookingStatusColor = (status: string) => {
+    const getBookingStatusColor = (status) => {
       switch (status) {
         case "pending":
           return "bg-yellow-100 text-yellow-800";
@@ -177,7 +144,7 @@ const AdminDashboard: React.FC = () => {
       }
     };
 
-    const getContactStatusColor = (status: string) => {
+    const getContactStatusColor = (status) => {
       switch (status) {
         case "new":
           return "bg-red-100 text-red-800";
@@ -195,7 +162,7 @@ const AdminDashboard: React.FC = () => {
     return (
       <div className="space-y-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
             <div key={index} className="bg-white rounded-lg shadow-lg p-6">
               <div className="flex items-center justify-between">
@@ -233,7 +200,7 @@ const AdminDashboard: React.FC = () => {
                 >
                   <div>
                     <p className="font-medium">
-                      {/* Fixed: Use standard optional chaining */}
+                      {/* Use standard optional chaining */}
                       {booking.customer?.firstName}{" "}
                       {booking.customer?.lastName || ""}
                     </p>
@@ -252,7 +219,7 @@ const AdminDashboard: React.FC = () => {
               ))}
               {bookings.length === 0 && (
                 <p className="text-gray-500 text-sm text-center py-4">
-                  No bookings found
+                  {isRTL ? "لا توجد حجوزات" : "No bookings found"}
                 </p>
               )}
             </div>
@@ -284,7 +251,7 @@ const AdminDashboard: React.FC = () => {
               ))}
               {contacts.length === 0 && (
                 <p className="text-gray-500 text-sm text-center py-4">
-                  No contacts found
+                  {isRTL ? "لا توجد رسائل" : "No contacts found"}
                 </p>
               )}
             </div>
@@ -373,9 +340,10 @@ const AdminDashboard: React.FC = () => {
               </span>
               <button
                 onClick={handleLogout}
-                className="text-red-600 hover:text-red-800 cursor-pointer"
+                className="text-red-600 hover:text-red-800 flex items-center gap-2 cursor-pointer"
               >
                 <FontAwesomeIcon icon={faSignOutAlt} />
+                {t("dashboard.logout")}
               </button>
             </div>
           </div>
@@ -383,9 +351,17 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div
+          className={`grid grid-cols-1 ${
+            activeTab === "users" ? "xl" : "lg"
+          }:grid-cols-4 gap-8`}
+        >
           {/* Sidebar */}
-          <div className="lg:col-span-1">
+          <div
+            className={`${
+              activeTab === "users" ? "lg:col-span-3" : ""
+            } xl:col-span-1`}
+          >
             <div className="bg-white rounded-lg shadow-lg p-6">
               <nav className="space-y-2">
                 {tabs.map((tab) => (

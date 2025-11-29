@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -7,14 +7,17 @@ import {
   faTimesCircle,
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
-import { bookingsAPI } from "../../services/api";
+import { mockAPI } from "../../services/mockData";
 import toast from "react-hot-toast";
 
-const UserBookings: React.FC = () => {
+const UserBookings = () => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Get user from local storage
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
     loadMyBookings();
@@ -23,7 +26,7 @@ const UserBookings: React.FC = () => {
   const loadMyBookings = async () => {
     try {
       setLoading(true);
-      const response = await bookingsAPI.getMyBookings();
+      const response = await mockAPI.bookings.getByUserId(user._id);
       setBookings(response.data.data.bookings);
     } catch (error) {
       console.error(error);
@@ -33,7 +36,7 @@ const UserBookings: React.FC = () => {
     }
   };
 
-  const handleCancel = async (id: string) => {
+  const handleCancel = async (id) => {
     const confirmMsg = isRTL
       ? "هل أنت متأكد من إلغاء هذا الموعد؟"
       : "Are you sure you want to cancel this appointment?";
@@ -41,15 +44,18 @@ const UserBookings: React.FC = () => {
     if (!window.confirm(confirmMsg)) return;
 
     try {
-      await bookingsAPI.cancel(id);
-      toast.success(t("common.success") || "Booking cancelled successfully");
-      loadMyBookings(); // Reload list
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to cancel booking");
+      await mockAPI.bookings.cancel(id);
+      toast.success(
+        isRTL ? "تم إلغاء الحجز بنجاح" : "Booking cancelled successfully"
+      );
+      loadMyBookings();
+    } catch (error) {
+      console.error("Error cancelling booking", error);
+      toast.error(isRTL ? "فشل إلغاء الحجز" : "Failed to cancel booking");
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status) => {
     switch (status) {
       case "pending":
         return "bg-yellow-100 text-yellow-800";
@@ -100,7 +106,7 @@ const UserBookings: React.FC = () => {
                 isRTL ? "border-r-4" : "border-l-4"
               }`}
             >
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                 {/* Service Info */}
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
@@ -141,27 +147,30 @@ const UserBookings: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Car Info */}
-                <div className="bg-gray-50 p-3 rounded-lg min-w-[200px]">
-                  <p className="text-xs text-gray-500 uppercase font-bold mb-1">
-                    {t("appointment.vehicleDetails")}
-                  </p>
-                  <p className="font-medium text-gray-800">
-                    {booking.car.make} {booking.car.model} ({booking.car.year})
-                  </p>
-                </div>
+                <div className="flex justify-start items-center gap-4">
+                  {/* Car Info */}
+                  <div className="bg-gray-50 p-3 rounded-lg min-w-[200px]">
+                    <p className="text-xs text-gray-500 uppercase font-bold mb-1">
+                      {t("appointment.vehicleDetails")}
+                    </p>
+                    <p className="font-medium text-gray-800">
+                      {booking.car.make} {booking.car.model} ({booking.car.year}
+                      )
+                    </p>
+                  </div>
 
-                {/* Actions */}
-                <div>
-                  {booking.status === "pending" && (
-                    <button
-                      onClick={() => handleCancel(booking._id)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
-                    >
-                      <FontAwesomeIcon icon={faTimesCircle} />
-                      {t("common.cancel")}
-                    </button>
-                  )}
+                  {/* Actions */}
+                  <div>
+                    {booking.status === "pending" && (
+                      <button
+                        onClick={() => handleCancel(booking._id)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
+                      >
+                        <FontAwesomeIcon icon={faTimesCircle} />
+                        {t("common.cancel")}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 

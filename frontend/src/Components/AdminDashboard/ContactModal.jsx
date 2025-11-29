@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -10,38 +10,27 @@ import {
   faTag,
   faExclamationCircle,
 } from "@fortawesome/free-solid-svg-icons";
-import { contactAPI } from "../../services/api";
 import toast from "react-hot-toast";
 
-interface ContactModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
-  contact: any;
-}
-
-const ContactModal: React.FC<ContactModalProps> = ({
-  isOpen,
-  onClose,
-  onSuccess,
-  contact,
-}) => {
+const ContactModal = ({ isOpen, onClose, onSuccess, contact }) => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
   const [loading, setLoading] = useState(false);
 
   if (!isOpen || !contact) return null;
 
-  const handleStatusChange = async (newStatus: string) => {
+  const handleStatusChange = async (newStatus) => {
     try {
       setLoading(true);
-      await contactAPI.updateStatus(contact._id, newStatus);
+      console.log(`Updating contact ${contact._id} status to ${newStatus}...`);
       toast.success(t("modals.contact.successStatus"));
       onSuccess();
       onClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.error("Failed to update status");
+      toast.error(
+        isRTL ? "فشل تحديث حالة الاتصال" : "Failed to update contact status"
+      );
     } finally {
       setLoading(false);
     }
@@ -122,14 +111,6 @@ const ContactModal: React.FC<ContactModalProps> = ({
                 </span>
               </div>
             </div>
-          </div>
-
-          {/* Subject */}
-          <div>
-            <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">
-              {t("modals.contact.subject")}
-            </label>
-            <p className="text-gray-900 font-medium">{contact.subject}</p>
           </div>
 
           {/* Message Body */}

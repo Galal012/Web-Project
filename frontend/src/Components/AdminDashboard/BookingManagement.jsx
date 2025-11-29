@@ -8,132 +8,62 @@ import {
   faCalendar,
   faUser,
   faWrench,
-  faHardHat, // Icon for Technician
+  faHardHat,
 } from "@fortawesome/free-solid-svg-icons";
-import { bookingsAPI } from "../../services/api";
-import BookingModal from "./BookingModal"; // Import the new modal
+import { mockAPI } from "../../services/mockData";
+import BookingModal from "./BookingModal";
 import toast from "react-hot-toast";
 
-interface Booking {
-  _id: string;
-  customer: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone?: string;
-  };
-  service: {
-    _id: string;
-    name: string;
-    price: number;
-  };
-  technician?: {
-    // Added technician field
-    _id: string;
-    firstName: string;
-    lastName: string;
-  };
-  car: {
-    // Added car field for the modal
-    make: string;
-    model: string;
-    year: number;
-  };
-  issue: {
-    description: string;
-  };
-  status:
-    | "pending"
-    | "confirmed"
-    | "in-progress"
-    | "completed"
-    | "cancelled"
-    | "no-show";
-  appointmentDate: string;
-  appointmentTime: string;
-  estimatedCost: number;
-  createdAt: string;
-}
-
-const BookingManagement: React.FC = () => {
+const BookingManagement = () => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Search & Filter States
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-
   // Modal States
   const [showModal, setShowModal] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-
-  // Debounce Search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-      if (searchTerm !== debouncedSearchTerm) {
-        setCurrentPage(1);
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
+  const [selectedBooking, setSelectedBooking] = useState(null);
 
   // Load Data
   useEffect(() => {
     loadBookings();
-  }, [currentPage, statusFilter, dateFilter, debouncedSearchTerm]);
+  }, [statusFilter, dateFilter]);
 
   const loadBookings = async () => {
     try {
       setLoading(true);
-      const params: any = {
-        page: currentPage,
-        limit: 10,
-      };
-
-      if (statusFilter) params.status = statusFilter;
-      if (dateFilter) {
-        params.date = dateFilter;
-      }
-
-      const response = await bookingsAPI.getAll(params);
+      const response = await mockAPI.bookings.getAll();
       setBookings(response.data.data.bookings);
-      setTotalPages(response.data.pages);
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.error("Failed to load bookings");
+      toast.error(isRTL ? "فشل تحميل الحجوزات" : "Failed to load bookings");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleUpdateBookingStatus = async (
-    bookingId: string,
-    newStatus: string
-  ) => {
+  const handleUpdateBookingStatus = async (bookingId, newStatus) => {
     try {
-      await bookingsAPI.updateStatus(bookingId, newStatus);
+      console.log(`Updating booking ${bookingId} to status ${newStatus}`);
       toast.success(
         isRTL ? "تم تحديث حالة الحجز" : "Booking status updated successfully"
       );
-      loadBookings(); // Reload to reflect changes
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.error("Failed to update booking status");
+      toast.error(
+        isRTL ? "فشل تحديث حالة الحجز" : "Failed to update booking status"
+      );
     }
   };
 
   const filteredBookings = bookings.filter((booking) => {
-    if (!debouncedSearchTerm) return true;
-    const term = debouncedSearchTerm.toLowerCase();
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
 
     return (
       (booking.customer?.firstName?.toLowerCase() || "").includes(term) ||
@@ -142,7 +72,7 @@ const BookingManagement: React.FC = () => {
     );
   });
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status) => {
     switch (status) {
       case "pending":
         return "bg-yellow-100 text-yellow-800";
@@ -161,7 +91,7 @@ const BookingManagement: React.FC = () => {
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status) => {
     return t(`status.${status}`);
   };
 
@@ -233,39 +163,46 @@ const BookingManagement: React.FC = () => {
       >
         {filteredBookings.map((booking) => (
           <div key={booking._id} className="bg-white rounded-lg shadow-lg p-6">
-            <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
-              {/* 1. Customer & Service */}
-              <div className="flex flex-col gap-1 min-w-[200px] flex-1">
-                <div className="flex items-center gap-2 font-semibold text-slate-800">
-                  <FontAwesomeIcon icon={faUser} className="text-blue-500" />
-                  {booking.customer?.firstName} {booking.customer?.lastName}
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <FontAwesomeIcon icon={faWrench} className="text-green-500" />
-                  {booking.service?.name || "Service Deleted"}
-                </div>
-                {booking.technician && (
-                  <div className="flex items-center gap-2 text-xs text-purple-600 mt-1 bg-purple-50 w-fit px-2 py-1 rounded">
-                    <FontAwesomeIcon icon={faHardHat} />
-                    Tech: {booking.technician.firstName}
+            <div className="flex gap-6 items-center justify-between">
+              <div className="w-full flex flex-col sm:flex-row items-start sm:items-center gap-6 justify-between">
+                {/* 1. Customer & Service */}
+                <div className="flex flex-col gap-1 min-w-[200px] flex-1">
+                  <div className="flex items-center gap-2 font-semibold text-slate-800">
+                    <FontAwesomeIcon icon={faUser} className="text-blue-500" />
+                    {booking.customer?.firstName} {booking.customer?.lastName}
                   </div>
-                )}
-              </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <FontAwesomeIcon
+                      icon={faWrench}
+                      className="text-green-500"
+                    />
+                    {booking.service?.name || "Service Deleted"}
+                  </div>
+                  {booking.technician && (
+                    <div className="flex items-center gap-2 text-xs text-purple-600 mt-1 bg-purple-50 w-fit px-2 py-1 rounded">
+                      <FontAwesomeIcon icon={faHardHat} />
+                      Tech: {booking.technician.firstName}
+                    </div>
+                  )}
+                </div>
 
-              {/* 2. Date & Cost */}
-              <div className="flex flex-col gap-1 min-w-[150px]">
-                <div className="flex items-center gap-2 text-gray-700">
-                  <FontAwesomeIcon
-                    icon={faCalendar}
-                    className="text-gray-400"
-                  />
-                  {new Date(booking.appointmentDate).toLocaleDateString()}
-                </div>
-                <div className="text-sm text-gray-500 pl-6">
-                  {booking.appointmentTime}
-                </div>
-                <div className="text-sm font-bold text-yellow-600 pl-6">
-                  ${booking.estimatedCost}
+                {/* 2. Date & Cost */}
+                <div className="flex flex-col gap-1 min-w-[150px]">
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <FontAwesomeIcon
+                      icon={faCalendar}
+                      className="text-gray-400"
+                    />
+                    {new Date(booking.appointmentDate).toLocaleDateString(
+                      isRTL ? "ar-EG" : "en-US"
+                    )}
+                  </div>
+                  <div className="text-sm text-gray-500 pl-6">
+                    {booking.appointmentTime}
+                  </div>
+                  <div className="text-sm font-bold text-yellow-600 pl-6">
+                    ${booking.estimatedCost}
+                  </div>
                 </div>
               </div>
 
@@ -313,33 +250,6 @@ const BookingManagement: React.FC = () => {
         ))}
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 pt-4">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 cursor-pointer"
-          >
-            {isRTL ? "السابق" : "Previous"}
-          </button>
-
-          <span className="px-4 py-2 text-gray-600">
-            {currentPage} / {totalPages}
-          </span>
-
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 cursor-pointer"
-          >
-            {isRTL ? "التالي" : "Next"}
-          </button>
-        </div>
-      )}
-
       {bookings.length === 0 && !loading && (
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">
@@ -352,7 +262,7 @@ const BookingManagement: React.FC = () => {
       <BookingModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        onSuccess={loadBookings} // Reloads list after assigning technician
+        onSuccess={loadBookings}
         booking={selectedBooking}
       />
     </div>
