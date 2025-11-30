@@ -163,31 +163,27 @@ const BookingManagement = () => {
       >
         {filteredBookings.map((booking) => (
           <div key={booking._id} className="bg-white rounded-lg shadow-lg p-6">
-            <div className="flex gap-6 items-center justify-between">
-              <div className="w-full flex flex-col sm:flex-row items-start sm:items-center gap-6 justify-between">
-                {/* 1. Customer & Service */}
-                <div className="flex flex-col gap-1 min-w-[200px] flex-1">
-                  <div className="flex items-center gap-2 font-semibold text-slate-800">
-                    <FontAwesomeIcon icon={faUser} className="text-blue-500" />
-                    {booking.customer?.firstName} {booking.customer?.lastName}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <FontAwesomeIcon
-                      icon={faWrench}
-                      className="text-green-500"
-                    />
-                    {booking.service?.name || "Service Deleted"}
-                  </div>
-                  {booking.technician && (
-                    <div className="flex items-center gap-2 text-xs text-purple-600 mt-1 bg-purple-50 w-fit px-2 py-1 rounded">
-                      <FontAwesomeIcon icon={faHardHat} />
-                      Tech: {booking.technician.firstName}
-                    </div>
-                  )}
+            <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
+              {/* 1. Customer & Service */}
+              <div className="flex flex-col gap-1 min-w-[200px]">
+                <div className="flex items-center gap-2 font-semibold text-slate-800">
+                  <FontAwesomeIcon icon={faUser} className="text-blue-500" />
+                  {booking.customer?.firstName} {booking.customer?.lastName}
                 </div>
-
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <FontAwesomeIcon icon={faWrench} className="text-green-500" />
+                  {booking.service?.name || "Service Deleted"}
+                </div>
+                {booking.technician && (
+                  <div className="flex items-center gap-2 text-xs text-purple-600 mt-1 bg-purple-50 w-fit px-2 py-1 rounded">
+                    <FontAwesomeIcon icon={faHardHat} />
+                    Tech: {booking.technician.firstName}
+                  </div>
+                )}
+              </div>
+              <div className="w-full flex justify-between">
                 {/* 2. Date & Cost */}
-                <div className="flex flex-col gap-1 min-w-[150px]">
+                <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2 text-gray-700">
                     <FontAwesomeIcon
                       icon={faCalendar}
@@ -204,46 +200,48 @@ const BookingManagement = () => {
                     ${booking.estimatedCost}
                   </div>
                 </div>
-              </div>
 
-              {/* 3. Status & Actions */}
-              <div className="flex flex-col items-start gap-3 min-w-35">
-                <div className="flex items-center gap-2">
-                  {/* Manage Button */}
-                  <button
-                    onClick={() => {
-                      setSelectedBooking(booking);
-                      setShowModal(true);
-                    }}
-                    className="text-blue-600 hover:text-blue-800 bg-blue-50 size-7.5 rounded-full hover:bg-blue-100 transition-colors cursor-pointer"
-                    title={isRTL ? "إدارة الحجز" : "Manage Booking"}
-                  >
-                    <FontAwesomeIcon icon={faEdit} />{" "}
-                  </button>
+                {/* 3. Status & Actions */}
+                <div className="flex flex-col items-start gap-3 min-w-35">
+                  <div className="flex items-center gap-2">
+                    {/* Manage Button */}
+                    <button
+                      onClick={() => {
+                        setSelectedBooking(booking);
+                        setShowModal(true);
+                      }}
+                      className="text-blue-600 hover:text-blue-800 bg-blue-50 size-7.5 rounded-full hover:bg-blue-100 transition-colors cursor-pointer"
+                      title={isRTL ? "إدارة الحجز" : "Manage Booking"}
+                    >
+                      <FontAwesomeIcon icon={faEdit} />{" "}
+                    </button>
 
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                      booking.status
-                    )}`}
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                        booking.status
+                      )}`}
+                    >
+                      {getStatusText(booking.status)}
+                    </span>
+                  </div>
+
+                  <select
+                    value={booking.status}
+                    onChange={(e) =>
+                      handleUpdateBookingStatus(booking._id, e.target.value)
+                    }
+                    className="w-full text-sm border border-gray-300 rounded-md px-2 py-1 bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer"
                   >
-                    {getStatusText(booking.status)}
-                  </span>
+                    <option value="pending">{t("status.pending")}</option>
+                    <option value="confirmed">{t("status.confirmed")}</option>
+                    <option value="in-progress">
+                      {t("status.in-progress")}
+                    </option>
+                    <option value="completed">{t("status.completed")}</option>
+                    <option value="cancelled">{t("status.cancelled")}</option>
+                    <option value="no-show">{t("status.no-show")}</option>
+                  </select>
                 </div>
-
-                <select
-                  value={booking.status}
-                  onChange={(e) =>
-                    handleUpdateBookingStatus(booking._id, e.target.value)
-                  }
-                  className="w-full text-sm border border-gray-300 rounded-md px-2 py-1 bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer"
-                >
-                  <option value="pending">{t("status.pending")}</option>
-                  <option value="confirmed">{t("status.confirmed")}</option>
-                  <option value="in-progress">{t("status.in-progress")}</option>
-                  <option value="completed">{t("status.completed")}</option>
-                  <option value="cancelled">{t("status.cancelled")}</option>
-                  <option value="no-show">{t("status.no-show")}</option>
-                </select>
               </div>
             </div>
           </div>
