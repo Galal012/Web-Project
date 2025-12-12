@@ -37,12 +37,19 @@ Built as a final project for the **DEPI React Web Development Course**.
 ### Frontend
 
 - **React.js (Vite):** Fast and modern UI library.
-- **TypeScript:** For type safety and robust code.
 - **Tailwind CSS:** For responsive and custom styling.
 - **i18next:** For translation and full RTL support.
 - **Axios:** For API communication.
 - **React Hook Form:** For efficient form handling and validation.
 - **React Hot Toast:** For beautiful notifications.
+
+### Backend
+
+- **Node.js & Express:** Robust RESTful API architecture.
+- **MongoDB & Mongoose:** NoSQL database for flexible data modeling.
+- **JWT (JSON Web Tokens):** Secure authentication and authorization.
+- **Cloudinary:** Cloud storage for handling image uploads.
+- **Multer:** Middleware for handling file data.
 
 ---
 
@@ -65,7 +72,40 @@ git clone https://github.com/Galal012/AutoLogic.git
 cd autologic
 ```
 
-### 3. Frontend Setup
+### 3. Backend Setup
+
+Navigate to the backend folder and install dependencies:
+
+```bash
+cd backend
+npm install
+```
+
+Create a **`.env`** file in the `backend` folder with the following variables:
+
+```env
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_super_secret_jwt_key
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
+
+**Run the Seeder (Optional):**
+To populate the database with sample users, services, and blogs:
+
+```bash
+npm run scripts/seedDatabase
+```
+
+**Start the Server:**
+
+```bash
+npm run dev
+```
+
+### 4. Frontend Setup
 
 Open a new terminal, navigate to the frontend folder, and install dependencies:
 
@@ -124,6 +164,14 @@ If you ran the seeder script, use these credentials to test:
 ## 📂 Project Structure
 
 ```text
+/backend
+  /middleware    # Auth, Error Handling, Validation
+  /models        # Mongoose Schemas (User, Booking, Service, etc.)
+  /routes        # API Endpoints
+  /scripts       # Database Seeder
+  /utils         # Helpers (JWT, Cloudinary, AppError)
+  server.js      # Entry point
+
 /frontend
   /src
     /Components  # Reusable UI (Navbar, Footer, WhatsAppButton)
