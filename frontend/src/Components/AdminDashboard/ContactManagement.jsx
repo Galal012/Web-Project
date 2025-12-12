@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -6,7 +6,7 @@ import {
   faEye,
   faEnvelopeOpen,
 } from "@fortawesome/free-solid-svg-icons";
-import { mockAPI } from "../../services/mockData";
+import { contactAPI } from "../../services/api";
 import ContactModal from "./ContactModal";
 import toast from "react-hot-toast";
 
@@ -18,6 +18,8 @@ const ContactManagement = () => {
 
   // Search & Filter
   const [statusFilter, setStatusFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Modal
   const [showModal, setShowModal] = useState(false);
@@ -25,13 +27,20 @@ const ContactManagement = () => {
 
   useEffect(() => {
     loadContacts();
-  }, [statusFilter]);
+  }, [currentPage, statusFilter]);
 
   const loadContacts = async () => {
     try {
       setLoading(true);
-      const response = await mockAPI.contacts.getAll();
+      const params = {
+        page: currentPage,
+        limit: 10,
+        status: statusFilter || undefined,
+      };
+
+      const response = await contactAPI.getAll(params);
       setContacts(response.data.data.contacts);
+      setTotalPages(response.data.pages);
     } catch (error) {
       console.error(error);
       toast.error(isRTL ? "فشل تحميل الرسائل" : "Failed to load messages");
@@ -45,10 +54,11 @@ const ContactManagement = () => {
       return;
 
     try {
-      console.log("Deleting contact with id:", id);
+      await contactAPI.delete(id);
       toast.success(
         isRTL ? "تم حذف الرسالة بنجاح" : "Message deleted successfully"
       );
+      loadContacts();
     } catch (error) {
       toast.error(isRTL ? "فشل حذف الرسالة" : "Failed to delete message");
     }
@@ -168,6 +178,31 @@ const ContactManagement = () => {
           </div>
         ))}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 pt-4">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50 cursor-pointer"
+          >
+            Prev
+          </button>
+          <span className="text-gray-600 px-2">
+            {currentPage} / {totalPages}
+          </span>
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50 cursor-pointer"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {contacts.length === 0 && !loading && (
         <div className="text-center py-12 text-gray-500">

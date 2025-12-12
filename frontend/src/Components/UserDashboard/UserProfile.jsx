@@ -1,6 +1,7 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { authAPI } from "../../services/api";
 import toast from "react-hot-toast";
 
 const UserProfile = () => {
@@ -32,7 +33,9 @@ const UserProfile = () => {
   const onUpdateInfo = async (data) => {
     try {
       setLoading(true);
-      console.log("Updating user info with data:", data);
+      const res = await authAPI.updateDetails(data);
+      // Update local storage
+      localStorage.setItem("user", JSON.stringify(res.data.data.user));
       toast.success(t("profile.successUpdate"));
     } catch (error) {
       toast.error(error.response?.data?.message || t("profile.failUpdate"));
@@ -47,7 +50,10 @@ const UserProfile = () => {
     }
     try {
       setLoading(true);
-      console.log("Changing password with data:", data);
+      await authAPI.changePassword({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
       toast.success(t("profile.successPass"));
       resetPass();
     } catch (error) {

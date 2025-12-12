@@ -8,10 +8,15 @@ import {
   faWrench,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
-import { mockAPI } from "../../services/mockData";
+import { bookingsAPI, usersAPI } from "../../services/api";
 import toast from "react-hot-toast";
 
-const BookingModal = ({ isOpen, onClose, onSuccess, booking }) => {
+const BookingModal = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  booking,
+}) => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
 
@@ -34,7 +39,7 @@ const BookingModal = ({ isOpen, onClose, onSuccess, booking }) => {
 
   const loadTechnicians = async () => {
     try {
-      const response = await mockAPI.users.getTechnicians();
+      const response = await usersAPI.getTechnicians();
       setTechnicians(response.data.data.technicians);
     } catch (error) {
       console.error(isRTL ? "فشل تحميل الفنيين" : "Failed to load technicians");
@@ -46,7 +51,7 @@ const BookingModal = ({ isOpen, onClose, onSuccess, booking }) => {
 
     try {
       setLoading(true);
-      console.log("Assigning technician:", selectedTechnician);
+      await bookingsAPI.assignTechnician(booking._id, selectedTechnician);
       toast.success(t("modals.booking.successAssign"));
       onSuccess();
       onClose();

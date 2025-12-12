@@ -11,7 +11,7 @@ import {
   faUser,
   faTools,
 } from "@fortawesome/free-solid-svg-icons";
-import { mockAPI } from "../../services/mockData";
+import { usersAPI } from "../../services/api";
 import UserModal from "./UserModal";
 import toast from "react-hot-toast";
 
@@ -23,21 +23,43 @@ const UserManagement = () => {
 
   // Search States
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
   const [roleFilter, setRoleFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
-  // Load Data when Role changes
+  // 1. Debounce Logic: Update 'debouncedSearchTerm' 500ms after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      if (searchTerm !== debouncedSearchTerm) {
+        setCurrentPage(1); // Reset to page 1 if search changes
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // 2. Load Data when Debounced Term, Role, or Page changes
   useEffect(() => {
     loadUsers();
-  }, [roleFilter]);
+  }, [currentPage, roleFilter, debouncedSearchTerm]);
 
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const response = await mockAPI.users.getAll();
+      const response = await usersAPI.getAll({
+        page: currentPage,
+        limit: 10,
+        role: roleFilter || undefined,
+        query: debouncedSearchTerm || undefined,
+      });
       setUsers(response.data.data.users);
+      setTotalPages(response.data.pages);
     } catch (error) {
       console.error(error);
       toast.error(isRTL ? "فشل تحميل المستخدمين" : "Failed to load users");
@@ -58,8 +80,9 @@ const UserManagement = () => {
     }
 
     try {
-      console.log("Deleting user with id:", id);
+      await usersAPI.delete(id);
       toast.success(isRTL ? "تم حذف المستخدم" : "User deleted successfully");
+      loadUsers();
     } catch (error) {
       toast.error(
         error.response?.data?.message || isRTL
@@ -71,7 +94,7 @@ const UserManagement = () => {
 
   const handleUpdateUserRole = async (userId, newRole) => {
     try {
-      console.log("Updating user role:", userId, newRole);
+      await usersAPI.updateRole(userId, newRole);
       toast.success(
         isRTL ? "تم تحديث دور المستخدم" : "User role updated successfully"
       );
@@ -192,7 +215,10 @@ const UserManagement = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {users.map((user) => (
-                <tr key={user._id} className="hover:bg-gray-50">
+                <tr
+                  key={user._id}
+                  className="hover:bg-gray-50"
+                >
                   <td className="px-3 lg:px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="shrink-0 h-10 w-10">
@@ -438,6 +464,33 @@ const UserManagement = () => {
           </div>
         </div>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 cursor-pointer"
+          >
+            {isRTL ? "السابق" : "Previous"}
+          </button>
+
+          <span className="px-4 py-2 text-gray-600">
+            {currentPage} / {totalPages}
+          </span>
+
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 cursor-pointer"
+          >
+            {isRTL ? "التالي" : "Next"}
+          </button>
+        </div>
+      )}
 
       {users.length === 0 && !loading && (
         <div className="text-center py-12">

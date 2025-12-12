@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -10,7 +10,7 @@ import {
   faWrench,
   faHardHat,
 } from "@fortawesome/free-solid-svg-icons";
-import { mockAPI } from "../../services/mockData";
+import { bookingsAPI } from "../../services/api";
 import BookingModal from "./BookingModal";
 import toast from "react-hot-toast";
 
@@ -22,23 +22,49 @@ const BookingManagement = () => {
 
   // Search & Filter States
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Modal States
   const [showModal, setShowModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
 
+  // Debounce Search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      if (searchTerm !== debouncedSearchTerm) {
+        setCurrentPage(1);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   // Load Data
   useEffect(() => {
     loadBookings();
-  }, [statusFilter, dateFilter]);
+  }, [currentPage, statusFilter, dateFilter, debouncedSearchTerm]);
 
   const loadBookings = async () => {
     try {
       setLoading(true);
-      const response = await mockAPI.bookings.getAll();
+      const params = {
+        page: currentPage,
+        limit: 10,
+      };
+
+      if (statusFilter) params.status = statusFilter;
+      if (dateFilter) {
+        params.date = dateFilter;
+      }
+
+      const response = await bookingsAPI.getAll(params);
       setBookings(response.data.data.bookings);
+      setTotalPages(response.data.pages);
     } catch (error) {
       console.error(error);
       toast.error(isRTL ? "فشل تحميل الحجوزات" : "Failed to load bookings");
@@ -47,12 +73,16 @@ const BookingManagement = () => {
     }
   };
 
-  const handleUpdateBookingStatus = async (bookingId, newStatus) => {
+  const handleUpdateBookingStatus = async (
+    bookingId,
+    newStatus
+  ) => {
     try {
-      console.log(`Updating booking ${bookingId} to status ${newStatus}`);
+      await bookingsAPI.updateStatus(bookingId, newStatus);
       toast.success(
         isRTL ? "تم تحديث حالة الحجز" : "Booking status updated successfully"
       );
+      loadBookings();
     } catch (error) {
       console.error(error);
       toast.error(
@@ -62,8 +92,8 @@ const BookingManagement = () => {
   };
 
   const filteredBookings = bookings.filter((booking) => {
-    if (!searchTerm) return true;
-    const term = searchTerm.toLowerCase();
+    if (!debouncedSearchTerm) return true;
+    const term = debouncedSearchTerm.toLowerCase();
 
     return (
       (booking.customer?.firstName?.toLowerCase() || "").includes(term) ||
@@ -247,6 +277,33 @@ const BookingManagement = () => {
           </div>
         ))}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 pt-4">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 cursor-pointer"
+          >
+            {isRTL ? "السابق" : "Previous"}
+          </button>
+
+          <span className="px-4 py-2 text-gray-600">
+            {currentPage} / {totalPages}
+          </span>
+
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 cursor-pointer"
+          >
+            {isRTL ? "التالي" : "Next"}
+          </button>
+        </div>
+      )}
 
       {bookings.length === 0 && !loading && (
         <div className="text-center py-12">

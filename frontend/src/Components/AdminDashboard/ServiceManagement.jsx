@@ -11,7 +11,7 @@ import {
   faToggleOn,
   faToggleOff,
 } from "@fortawesome/free-solid-svg-icons";
-import { mockAPI } from "../../services/mockData";
+import { servicesAPI } from "../../services/api";
 import toast from "react-hot-toast";
 
 const ServiceManagement = () => {
@@ -32,7 +32,7 @@ const ServiceManagement = () => {
   const loadServices = async () => {
     try {
       setLoading(true);
-      const response = await mockAPI.services.getAll();
+      const response = await servicesAPI.getAll({ limit: 50 });
       setServices(response.data.data.services);
     } catch (error) {
       console.error(error);
@@ -54,10 +54,11 @@ const ServiceManagement = () => {
     }
 
     try {
-      console.log("Deleting service with ID:", id);
+      await servicesAPI.delete(id);
       toast.success(
         isRTL ? "تم حذف الخدمة بنجاح" : "Service deleted successfully"
       );
+      loadServices();
     } catch (error) {
       console.error(error);
       toast.error(isRTL ? "فشل حذف الخدمة" : "Failed to delete service");
@@ -66,15 +67,23 @@ const ServiceManagement = () => {
 
   const handleToggleStatus = async (service) => {
     try {
-      const updatedService = {
-        ...service,
-        isActive: !service.isActive,
-      };
-      console.log("Updating service status:", updatedService);
-      setServices((prevServices) =>
-        prevServices.map((s) => (s._id === service._id ? updatedService : s))
-      );
+      // We must use FormData because our API expects multipart/form-data for PUT requests
+      const formData = new FormData();
+
+      // Append the new status
+      formData.append("isActive", (!service.isActive).toString());
+
+      // Append the REQUIRED fields to satisfy backend validation
+      formData.append("name", service.name);
+      formData.append("description", service.description);
+      formData.append("price", service.price.toString());
+      formData.append("duration", service.duration.toString());
+      formData.append("category", service.category);
+
+      await servicesAPI.update(service._id, formData);
+
       toast.success(isRTL ? "تم تحديث حالة الخدمة" : "Service status updated");
+      loadServices();
     } catch (error) {
       console.error(error);
       toast.error(

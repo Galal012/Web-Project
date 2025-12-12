@@ -13,7 +13,7 @@ import {
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { NavLink, useNavigate } from "react-router-dom";
-import { mockAPI } from "../services/mockData";
+import { servicesAPI } from "../services/api";
 import toast from "react-hot-toast";
 
 const Services = () => {
@@ -30,7 +30,7 @@ const Services = () => {
   const fetchServices = async () => {
     try {
       setLoading(true);
-      const response = await mockAPI.services.getAll();
+      const response = await servicesAPI.getAll({ limit: 100, active: true });
       setServices(response.data.data.services);
     } catch (error) {
       console.error("Error fetching services:", error);

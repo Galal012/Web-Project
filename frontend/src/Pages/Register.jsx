@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash, faCar } from "@fortawesome/free-solid-svg-icons";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { mockAPI } from "../services/mockData";
+import { authAPI } from "../services/api";
 
 const Register = () => {
   const { t, i18n } = useTranslation();
@@ -29,7 +29,7 @@ const Register = () => {
       setLoading(true);
 
       // 1. Call API
-      await mockAPI.auth.register(data);
+      await authAPI.register(data);
 
       // 2. Success!
       toast.success(

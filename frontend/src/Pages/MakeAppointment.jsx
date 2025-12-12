@@ -16,7 +16,7 @@ import DatePicker from "react-datepicker";
 import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import "react-datepicker/dist/react-datepicker.css";
-import { mockAPI } from "../services/mockData";
+import { servicesAPI, bookingsAPI } from "../services/api";
 
 const MakeAppointment = () => {
   const { t, i18n } = useTranslation();
@@ -37,6 +37,7 @@ const MakeAppointment = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm();
 
@@ -58,8 +59,13 @@ const MakeAppointment = () => {
   // Fetch Services
   const loadServices = async () => {
     try {
-      const response = await mockAPI.services.getAll();
+      const response = await servicesAPI.getAll({ limit: 100 });
       setServices(response.data.data.services);
+
+      // Check if a service was pre-selected from the Services page
+      if (location.state?.selectedServiceId) {
+        setValue("service", location.state.selectedServiceId);
+      }
     } catch (error) {
       console.error(error);
       toast.error("Failed to load services");
@@ -75,11 +81,17 @@ const MakeAppointment = () => {
     }
   }, [selectedDate]);
 
-  const loadAvailableSlots = async () => {
+  const loadAvailableSlots = async (date) => {
     try {
       setSlotsLoading(true);
-      const response = await mockAPI.bookings.getAvailableSlots();
-      setTimeSlots(response.data.data.slots);
+      // Format date as YYYY-MM-DD manually to avoid timezone issues
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const dateString = `${year}-${month}-${day}`;
+
+      const response = await bookingsAPI.getAvailableSlots(dateString);
+      setTimeSlots(response.data.data.availableSlots);
     } catch (error) {
       console.error(error);
       toast.error("Failed to load time slots");
@@ -112,7 +124,8 @@ const MakeAppointment = () => {
         },
       };
 
-      console.log("Booking Payload:", payload);
+      await bookingsAPI.create(payload);
+
       toast.success(
         isRTL ? "تم حجز الموعد بنجاح" : "Appointment booked successfully"
       );
@@ -170,7 +183,6 @@ const MakeAppointment = () => {
                       className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent ${
                         isRTL ? "text-right" : "text-left"
                       } cursor-pointer`}
-                      value={location.state?.selectedServiceId || ""}
                     >
                       <option value="">{t("appointment.chooseService")}</option>
                       {services.map((service) => (

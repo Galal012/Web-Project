@@ -8,7 +8,7 @@ import {
   faArrowRight,
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
-import { mockAPI } from "../services/mockData";
+import { blogAPI } from "../services/api";
 import toast from "react-hot-toast";
 
 const Blog = () => {
@@ -40,11 +40,14 @@ const Blog = () => {
   const fetchBlogs = async () => {
     try {
       setLoading(true);
-      const response =
-        activeCategory === "All"
-          ? await mockAPI.blogs.getAll()
-          : await mockAPI.blogs.getByCategory(activeCategory);
-      setBlogs(response.data.data.blogs);
+
+      const params = { limit: 50 };
+      if (activeCategory !== "All") {
+        params.category = activeCategory;
+      }
+
+      const response = await blogAPI.getAll(params);
+      setBlogs(response.data.data.posts);
     } catch (error) {
       console.error("Error fetching blogs:", error);
       toast.error("Failed to load blog posts");
@@ -222,7 +225,7 @@ const Blog = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder={isRTL ? "أدخل بريدك الإلكتروني" : "Enter your email"}
+              placeholder={t("blog.emailPlaceholder")}
               className="flex-1 px-4 py-3 rounded-lg text-slate-300 ring-2 focus:ring-yellow-500 focus:outline-none"
               required
             />
@@ -230,7 +233,7 @@ const Blog = () => {
               type="submit"
               className="bg-yellow-500 text-white px-8 py-3 rounded-lg font-medium hover:bg-yellow-600 transition-colors cursor-pointer"
             >
-              {isRTL ? "اشترك" : "Subscribe"}
+              {t("blog.subscribe")}
             </button>
           </form>
         </div>

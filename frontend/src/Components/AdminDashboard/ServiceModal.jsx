@@ -6,6 +6,7 @@ import {
   faUpload,
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
+import { servicesAPI } from "../../services/api";
 import toast from "react-hot-toast";
 
 const ServiceModal = ({ isOpen, onClose, onSuccess, serviceToEdit }) => {
@@ -82,11 +83,22 @@ const ServiceModal = ({ isOpen, onClose, onSuccess, serviceToEdit }) => {
     setLoading(true);
 
     try {
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("description", formData.description);
+      data.append("price", formData.price);
+      data.append("duration", formData.duration);
+      data.append("category", formData.category);
+
+      if (imageFile) {
+        data.append("files", imageFile);
+      }
+
       if (serviceToEdit) {
-        console.log("Updating service with data:", formData);
+        await servicesAPI.update(serviceToEdit._id, data);
         toast.success(t("modals.service.successUpdate"));
       } else {
-        console.log("Creating service with data:", formData);
+        await servicesAPI.create(data);
         toast.success(t("modals.service.successCreate"));
       }
 

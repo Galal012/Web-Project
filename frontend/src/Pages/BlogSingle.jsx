@@ -8,7 +8,7 @@ import {
   faArrowLeft,
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
-import { mockAPI } from "../services/mockData";
+import { blogAPI } from "../services/api";
 import toast from "react-hot-toast";
 
 const BlogSingle = () => {
@@ -31,8 +31,8 @@ const BlogSingle = () => {
   const fetchPost = async (postId) => {
     try {
       setLoading(true);
-      const response = await mockAPI.blogs.getById(postId);
-      setPost(response.data.data.blog);
+      const response = await blogAPI.getById(postId);
+      setPost(response.data.data.post);
     } catch (error) {
       console.error("Error fetching post:", error);
       setError(true);

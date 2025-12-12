@@ -8,6 +8,7 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import hero1 from "./igor-constantino-aXxu0nVMGmk-unsplash.jpg";
 import hero2 from "./joseph-pillado-n99UTGfbvFQ-unsplash.jpg";
 import hero3 from "./kate-ibragimova-bEGTsOCnHro-unsplash.jpg";
+import { contactAPI } from "../../services/api";
 
 function Hero() {
   const { t, i18n } = useTranslation();
@@ -35,14 +36,15 @@ function Hero() {
   const onSubmit = async (data) => {
     try {
       setLoading(true);
-      console.log("Contact form data:", data);
+      await contactAPI.sendMessage(data);
       toast.success(
         isRTL ? "تم إرسال الرسالة بنجاح" : "Message sent successfully"
       );
       reset();
     } catch (error) {
       console.error("Error sending message:", error);
-      toast.error("Failed to send message");
+      const msg = error.response?.data?.message || "Failed to send message";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

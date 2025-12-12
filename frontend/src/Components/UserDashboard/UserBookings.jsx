@@ -7,7 +7,7 @@ import {
   faTimesCircle,
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
-import { mockAPI } from "../../services/mockData";
+import { bookingsAPI } from "../../services/api";
 import toast from "react-hot-toast";
 
 const UserBookings = () => {
@@ -16,9 +16,6 @@ const UserBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Get user from local storage
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-
   useEffect(() => {
     loadMyBookings();
   }, []);
@@ -26,7 +23,7 @@ const UserBookings = () => {
   const loadMyBookings = async () => {
     try {
       setLoading(true);
-      const response = await mockAPI.bookings.getByUserId(user._id);
+      const response = await bookingsAPI.getMyBookings();
       setBookings(response.data.data.bookings);
     } catch (error) {
       console.error(error);
@@ -44,7 +41,7 @@ const UserBookings = () => {
     if (!window.confirm(confirmMsg)) return;
 
     try {
-      await mockAPI.bookings.cancel(id);
+      await bookingsAPI.cancel(id);
       toast.success(
         isRTL ? "تم إلغاء الحجز بنجاح" : "Booking cancelled successfully"
       );

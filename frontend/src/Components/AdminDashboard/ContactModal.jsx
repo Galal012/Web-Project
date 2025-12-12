@@ -10,9 +10,15 @@ import {
   faTag,
   faExclamationCircle,
 } from "@fortawesome/free-solid-svg-icons";
+import { contactAPI } from "../../services/api";
 import toast from "react-hot-toast";
 
-const ContactModal = ({ isOpen, onClose, onSuccess, contact }) => {
+const ContactModal = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  contact,
+}) => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
   const [loading, setLoading] = useState(false);
@@ -22,7 +28,7 @@ const ContactModal = ({ isOpen, onClose, onSuccess, contact }) => {
   const handleStatusChange = async (newStatus) => {
     try {
       setLoading(true);
-      console.log(`Updating contact ${contact._id} status to ${newStatus}...`);
+      await contactAPI.updateStatus(contact._id, newStatus);
       toast.success(t("modals.contact.successStatus"));
       onSuccess();
       onClose();

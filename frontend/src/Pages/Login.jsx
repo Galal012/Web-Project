@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash, faCar } from "@fortawesome/free-solid-svg-icons";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { mockAPI } from "../services/mockData";
+import { authAPI } from "../services/api";
 
 const Login = () => {
   const { t, i18n } = useTranslation();
@@ -31,7 +31,7 @@ const Login = () => {
       setLoading(true);
 
       // 1. Call API
-      const response = await mockAPI.auth.login(data.email, data.password);
+      const response = await authAPI.login(data);
 
       // 2. Extract Data
       const {

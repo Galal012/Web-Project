@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { mockAPI } from "../../services/mockData";
+import { usersAPI } from "../../services/api"; //rem
 import toast from "react-hot-toast";
 
 const UserModal = ({ isOpen, onClose, onSuccess, userToEdit }) => {
@@ -66,10 +66,10 @@ const UserModal = ({ isOpen, onClose, onSuccess, userToEdit }) => {
       }
 
       if (userToEdit) {
-        console.log("Updating user:", dataToSend);
+        await usersAPI.update(userToEdit._id, dataToSend); //rem
         toast.success(t("modals.user.successUpdate"));
       } else {
-        await mockAPI.auth.register(dataToSend);
+        await usersAPI.create(dataToSend); //rem
         toast.success(t("modals.user.successCreate"));
       }
 

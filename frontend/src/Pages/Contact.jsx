@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -10,6 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { contactAPI } from "../services/api";
 
 const Contact = () => {
   const { t, i18n } = useTranslation();
@@ -26,14 +27,15 @@ const Contact = () => {
   const onSubmit = async (data) => {
     try {
       setLoading(true);
-      console.log("Contact form data:", data);
+      await contactAPI.sendMessage(data);
       toast.success(
         isRTL ? "تم إرسال الرسالة بنجاح" : "Message sent successfully"
       );
       reset();
     } catch (error) {
       console.error("Error sending message:", error);
-      toast.error("Failed to send message");
+      const msg = error.response?.data?.message || "Failed to send message";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

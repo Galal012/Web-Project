@@ -13,7 +13,7 @@ import {
   faSpinner,
   faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
-import { mockAPI } from "../../services/mockData";
+import { adminAPI, bookingsAPI, contactAPI } from "../../services/api";
 import ServiceManagement from "./ServiceManagement";
 import UserManagement from "./UserManagement";
 import BookingManagement from "./BookingManagement";
@@ -27,7 +27,9 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dashboardStats, setDashboardStats] = useState(null);
+  const [dashboardStats, setDashboardStats] = useState(
+    null
+  );
 
   const [bookings, setBookings] = useState([]);
   const [contacts, setContacts] = useState([]);
@@ -44,9 +46,9 @@ const AdminDashboard = () => {
       // Fetch all data in parallel
       const [statsResponse, bookingsResponse, contactsResponse] =
         await Promise.all([
-          mockAPI.admin.getDashboardStats(),
-          mockAPI.bookings.getAll(),
-          mockAPI.contacts.getAll(),
+          adminAPI.getDashboardStats(),
+          bookingsAPI.getAll({ limit: 5 }),
+          contactAPI.getAll({ limit: 5 }),
         ]);
 
       setDashboardStats(statsResponse.data.data);

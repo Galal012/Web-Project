@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -13,7 +13,7 @@ import {
   faGoogle,
 } from "@fortawesome/free-brands-svg-icons";
 import { useTranslation } from "react-i18next";
-import { mockAPI } from "../../services/mockData";
+import { blogAPI, servicesAPI } from "../../services/api";
 
 const Footer = () => {
   const { t, i18n } = useTranslation();
@@ -26,12 +26,12 @@ const Footer = () => {
     const fetchData = async () => {
       try {
         // Fetch 2 recent blogs
-        const blogsRes = await mockAPI.blogs.getAll();
-        setRecentPosts(blogsRes.data.data.blogs.slice(0, 2));
+        const blogsRes = await blogAPI.getAll({ limit: 2 });
+        setRecentPosts(blogsRes.data.data.posts);
 
         // Fetch 6 services
-        const servicesRes = await mockAPI.services.getAll();
-        setServices(servicesRes.data.data.services.slice(0, 6));
+        const servicesRes = await servicesAPI.getAll({ limit: 6 });
+        setServices(servicesRes.data.data.services);
       } catch (error) {
         console.error("Failed to load footer data", error);
       }
